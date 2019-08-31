@@ -81,7 +81,7 @@ impl Changelog {
 
         let mut release = ReleaseBuilder::default();
         let mut changeset: Vec<Change> = Vec::new();
-        let mut change = String::new();
+        let mut accumulator = String::new();
 
         for event in parser {
             match event {
@@ -89,12 +89,19 @@ impl Changelog {
                 Event::Start(Tag::Header(1)) => section = ChangelogSection::Title,
                 Event::End(Tag::Header(1)) => section = ChangelogSection::Description,
                 Event::Start(Tag::Header(2)) => {
-                    if let ChangelogSection::Changeset(_) = section {
-                        release.changes(changeset.clone());
-                        releases.push(release.build().unwrap());
+                    match section {
+                        ChangelogSection::Description => {
+                            description = accumulator.clone();
+                            accumulator = String::new();
+                        },
+                        ChangelogSection::Changeset(_) => {
+                            release.changes(changeset.clone());
+                            releases.push(release.build().unwrap());
 
-                        changeset = Vec::new();
-                        release = ReleaseBuilder::default();
+                            changeset = Vec::new();
+                            release = ReleaseBuilder::default();
+                        },
+                        _ => (),
                     }
 
                     section = ChangelogSection::ReleaseHeader;
@@ -102,28 +109,8 @@ impl Changelog {
                 Event::Start(Tag::Header(3)) => section = ChangelogSection::ChangesetHeader,
 
                 // Links.
-                Event::Start(Tag::Link(LinkType::Inline, _, _)) => {
-                    let string: Option<&mut String> = match section {
-                        ChangelogSection::Description => Some(&mut description),
-                        ChangelogSection::Changeset(_) => Some(&mut change),
-                        _ => None,
-                    };
-
-                    if let Some(string) = string {
-                        string.push_str("[");
-                    }
-                },
-                Event::End(Tag::Link(LinkType::Inline, href, _)) => {
-                    let string: Option<&mut String> = match section {
-                        ChangelogSection::Description => Some(&mut description),
-                        ChangelogSection::Changeset(_) => Some(&mut change),
-                        _ => None,
-                    };
-
-                    if let Some(string) = string {
-                        string.push_str(&format!("]({})", href));
-                    }
-                },
+                Event::Start(Tag::Link(LinkType::Inline, _, _)) =>  accumulator.push_str("["),
+                Event::End(Tag::Link(LinkType::Inline, href, _)) => accumulator.push_str(&format!("]({})", href)),
                 Event::Start(Tag::Link(LinkType::Shortcut, href, _)) => {
                     release.link(href.to_string());
                 },
@@ -131,41 +118,21 @@ impl Changelog {
                 // Items.
                 Event::End(Tag::Item) => {
                     if let ChangelogSection::Changeset(name) = section.clone() {
-                        changeset.push(Change::new(&name, change).unwrap());
+                        changeset.push(Change::new(&name, accumulator).unwrap());
 
-                        change = String::new();
+                        accumulator = String::new();
                     }
                 }
 
                 // Line breaks.
-                Event::SoftBreak => {
-                    let string: Option<&mut String> = match section {
-                        ChangelogSection::Description => Some(&mut description),
-                        ChangelogSection::Changeset(_) => Some(&mut change),
-                        _ => None,
-                    };
-
-                    if let Some(string) = string {
-                        string.push_str("\n");
-                    }
-                }
-                Event::End(Tag::Paragraph) => {
-                    let string: Option<&mut String> = match section {
-                        ChangelogSection::Description => Some(&mut description),
-                        ChangelogSection::Changeset(_) => Some(&mut change),
-                        _ => None,
-                    };
-
-                    if let Some(string) = string {
-                        string.push_str("\n\n");
-                    }
-                }
+                Event::SoftBreak => accumulator.push_str("\n"),
+                Event::End(Tag::Paragraph) => accumulator.push_str("\n\n"),
 
                 // Text.
                 Event::Text(text) => {
                     match section {
                         ChangelogSection::Title => title = text.to_string(),
-                        ChangelogSection::Description => description.push_str(&text),
+                        ChangelogSection::Description => accumulator.push_str(&text),
                         ChangelogSection::ReleaseHeader => {
                             let text = text.trim();
 
@@ -188,7 +155,7 @@ impl Changelog {
                             }
                         },
                         ChangelogSection::ChangesetHeader => section = ChangelogSection::Changeset(text.to_string()),
-                        ChangelogSection::Changeset(_) => change.push_str(&text),
+                        ChangelogSection::Changeset(_) => accumulator.push_str(&text),
                         _ => (),
                     }
                 }
