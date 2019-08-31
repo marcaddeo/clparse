@@ -1,13 +1,14 @@
-extern crate pulldown_cmark;
 extern crate chrono;
-#[macro_use] extern crate derive_builder;
+extern crate pulldown_cmark;
+#[macro_use]
+extern crate derive_builder;
 
-use std::io::prelude::*;
-use std::fs::File;
-use std::path::PathBuf;
-use semver::Version;
 use chrono::NaiveDate;
-use pulldown_cmark::{Parser, Event, Tag, LinkType};
+use pulldown_cmark::{Event, LinkType, Parser, Tag};
+use semver::Version;
+use std::fs::File;
+use std::io::prelude::*;
+use std::path::PathBuf;
 
 #[derive(Debug, Clone)]
 pub enum Change {
@@ -68,8 +69,10 @@ impl Changelog {
     pub fn new(path: PathBuf) -> Self {
         let mut document = String::new();
 
-        File::open(path).unwrap()
-            .read_to_string(&mut document).unwrap();
+        File::open(path)
+            .unwrap()
+            .read_to_string(&mut document)
+            .unwrap();
 
         let parser = Parser::new(&document);
 
@@ -93,27 +96,29 @@ impl Changelog {
                         ChangelogSection::Description => {
                             description = accumulator.clone();
                             accumulator = String::new();
-                        },
+                        }
                         ChangelogSection::Changeset(_) => {
                             release.changes(changeset.clone());
                             releases.push(release.build().unwrap());
 
                             changeset = Vec::new();
                             release = ReleaseBuilder::default();
-                        },
+                        }
                         _ => (),
                     }
 
                     section = ChangelogSection::ReleaseHeader;
-                },
+                }
                 Event::Start(Tag::Header(3)) => section = ChangelogSection::ChangesetHeader,
 
                 // Links.
-                Event::Start(Tag::Link(LinkType::Inline, _, _)) =>  accumulator.push_str("["),
-                Event::End(Tag::Link(LinkType::Inline, href, _)) => accumulator.push_str(&format!("]({})", href)),
+                Event::Start(Tag::Link(LinkType::Inline, _, _)) => accumulator.push_str("["),
+                Event::End(Tag::Link(LinkType::Inline, href, _)) => {
+                    accumulator.push_str(&format!("]({})", href))
+                }
                 Event::Start(Tag::Link(LinkType::Shortcut, href, _)) => {
                     release.link(href.to_string());
-                },
+                }
 
                 // Items.
                 Event::End(Tag::Item) => {
@@ -129,30 +134,30 @@ impl Changelog {
                 Event::End(Tag::Paragraph) => accumulator.push_str("\n\n"),
 
                 // Text.
-                Event::Text(text) => {
-                    match section {
-                        ChangelogSection::Title => title = text.to_string(),
-                        ChangelogSection::Description => accumulator.push_str(&text),
-                        ChangelogSection::ReleaseHeader => {
-                            let text = text.trim();
+                Event::Text(text) => match section {
+                    ChangelogSection::Title => title = text.to_string(),
+                    ChangelogSection::Description => accumulator.push_str(&text),
+                    ChangelogSection::ReleaseHeader => {
+                        let text = text.trim();
 
-                            if text == "YANKED" {
-                                release.yanked(true);
-                            }
+                        if text == "YANKED" {
+                            release.yanked(true);
+                        }
 
-                            if let Ok(date) = NaiveDate::parse_from_str(&text, "- %Y-%m-%d") {
-                                release.date(date);
-                            }
+                        if let Ok(date) = NaiveDate::parse_from_str(&text, "- %Y-%m-%d") {
+                            release.date(date);
+                        }
 
-                            if let Ok(version) = Version::parse(&text) {
-                                release.version(version);
-                            }
-                        },
-                        ChangelogSection::ChangesetHeader => section = ChangelogSection::Changeset(text.to_string()),
-                        ChangelogSection::Changeset(_) => accumulator.push_str(&text),
-                        _ => (),
+                        if let Ok(version) = Version::parse(&text) {
+                            release.version(version);
+                        }
                     }
-                }
+                    ChangelogSection::ChangesetHeader => {
+                        section = ChangelogSection::Changeset(text.to_string())
+                    }
+                    ChangelogSection::Changeset(_) => accumulator.push_str(&text),
+                    _ => (),
+                },
                 _ => (),
             };
         }
@@ -160,7 +165,7 @@ impl Changelog {
         Changelog {
             title,
             description,
-            releases
+            releases,
         }
     }
 }
