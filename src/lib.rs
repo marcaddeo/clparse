@@ -3,6 +3,7 @@ extern crate pulldown_cmark;
 #[macro_use]
 extern crate derive_builder;
 
+use changelog::{Change, Changelog, ChangelogBuilder, Release, ReleaseBuilder};
 use chrono::NaiveDate;
 use pulldown_cmark::{Event, LinkType, Parser, Tag};
 use semver::Version;
@@ -10,43 +11,7 @@ use std::fs::File;
 use std::io::prelude::*;
 use std::path::PathBuf;
 
-#[derive(Debug, Clone)]
-pub enum Change {
-    Added(String),
-    Changed(String),
-    Deprecated(String),
-    Removed(String),
-    Fixed(String),
-    Security(String),
-}
-
-impl Change {
-    pub fn new(change_type: &str, description: String) -> Result<Self, ()> {
-        match change_type {
-            "Added" => Ok(Change::Added(description)),
-            "Changed" => Ok(Change::Changed(description)),
-            "Deprecated" => Ok(Change::Deprecated(description)),
-            "Removed" => Ok(Change::Removed(description)),
-            "Fixed" => Ok(Change::Fixed(description)),
-            "Security" => Ok(Change::Security(description)),
-            _ => Err(()),
-        }
-    }
-}
-
-#[derive(Debug, Clone, Builder)]
-pub struct Release {
-    #[builder(setter(strip_option), default)]
-    version: Option<Version>,
-    #[builder(setter(into))]
-    link: String,
-    #[builder(setter(strip_option), default)]
-    date: Option<NaiveDate>,
-    #[builder(default)]
-    changes: Vec<Change>,
-    #[builder(default = "false")]
-    yanked: bool,
-}
+pub mod changelog;
 
 #[derive(Clone, Debug, PartialEq)]
 enum ChangelogSection {
@@ -58,15 +23,9 @@ enum ChangelogSection {
     Changeset(String),
 }
 
-#[derive(Debug)]
-pub struct Changelog {
-    title: String,
-    description: String,
-    releases: Vec<Release>,
-}
-
-impl Changelog {
-    pub fn new(path: PathBuf) -> Self {
+pub struct ChangelogParser;
+impl ChangelogParser {
+    pub fn new(path: PathBuf) -> Changelog {
         let mut document = String::new();
 
         File::open(path)
@@ -162,11 +121,12 @@ impl Changelog {
             };
         }
 
-        Changelog {
-            title,
-            description,
-            releases,
-        }
+        ChangelogBuilder::default()
+            .title(title)
+            .description(description)
+            .releases(releases)
+            .build()
+            .unwrap()
     }
 }
 
@@ -176,7 +136,7 @@ mod tests {
 
     #[test]
     fn it_works() {
-        let cl = Changelog::new(PathBuf::from("test_changelog.md"));
+        let cl = ChangelogParser::new(PathBuf::from("test_changelog.md"));
         dbg!(cl);
     }
 }
