@@ -93,7 +93,7 @@ benefit both "open" and "closed" source projects equally.
 ### Fixed
 - Fix Markdown links to tag comparison URL with footnote-style links.
 
-## [0.0.6] - 2014-12-12
+## 0.0.6 - 2014-12-12 [YANKED]
 ### Added
 - README section on "yanked" releases.
 

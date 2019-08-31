@@ -103,13 +103,23 @@ impl ChangelogParser {
                             release.yanked(true);
                         }
 
-                        if let Ok(date) = NaiveDate::parse_from_str(&text, "- %Y-%m-%d") {
-                            release.date(date);
+                        let mut date_format = "- %Y-%m-%d";
+                        let split: Vec<&str> = text.split(" - ").collect();
+
+                        if split.iter().count() > 1 {
+                            date_format = "%Y-%m-%d";
                         }
 
-                        if let Ok(version) = Version::parse(&text) {
-                            release.version(version);
+                        for string in split {
+                            if let Ok(date) = NaiveDate::parse_from_str(&string, date_format) {
+                                release.date(date);
+                            }
+
+                            if let Ok(version) = Version::parse(&string) {
+                                release.version(version);
+                            }
                         }
+
                     }
                     ChangelogSection::ChangesetHeader => {
                         section = ChangelogSection::Changeset(text.to_string())
@@ -137,6 +147,7 @@ mod tests {
     #[test]
     fn it_works() {
         let cl = ChangelogParser::new(PathBuf::from("test_changelog.md"));
-        dbg!(cl);
+        dbg!(cl.clone());
+        println!("{}", cl);
     }
 }
