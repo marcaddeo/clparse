@@ -140,18 +140,12 @@ impl Changelog {
                                 release.yanked(true);
                             }
 
-                            match NaiveDate::parse_from_str(&text, "- %Y-%m-%d") {
-                                Ok(date) => {
-                                    release.date(date);
-                                },
-                                _ => (),
+                            if let Ok(date) = NaiveDate::parse_from_str(&text, "- %Y-%m-%d") {
+                                release.date(date);
                             }
 
-                            match Version::parse(&text) {
-                                Ok(version) => {
-                                    release.version(version);
-                                },
-                                _ => (),
+                            if let Ok(version) = Version::parse(&text) {
+                                release.version(version);
                             }
                         },
                         ChangelogSection::ChangesetHeader => section = ChangelogSection::Changeset(text.to_string()),
