@@ -92,6 +92,18 @@ impl ChangelogParser {
                 Event::SoftBreak => accumulator.push_str("\n"),
                 Event::End(Tag::Paragraph) => accumulator.push_str("\n\n"),
 
+                // Inline code.
+                Event::Code(text) => accumulator.push_str(&format!("`{}`", text)),
+
+                // Text formatting.
+                Event::Start(Tag::Strong) | Event::End(Tag::Strong) => accumulator.push_str("**"),
+                Event::Start(Tag::Emphasis) | Event::End(Tag::Emphasis) => {
+                    accumulator.push_str("_")
+                }
+                Event::Start(Tag::Strikethrough) | Event::End(Tag::Strikethrough) => {
+                    accumulator.push_str("~~")
+                }
+
                 // Text.
                 Event::Text(text) => match section {
                     ChangelogSection::Title => title = text.to_string(),

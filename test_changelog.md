@@ -9,9 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.0] - 2017-06-20
 ### Added
 - New visual identity by [@tylerfortune8](https://github.com/tylerfortune8).
-- Version navigation.
-- Links to latest released version in previous versions.
-- "Why keep a changelog?" section.
+- Version `navigation`.
+- Links to _latest_ released **version** in previous versions.
+- "Why keep a changelog?" ~~section~~.
 - "Who needs a changelog?" section.
 - "How do I make a changelog?" section.
 - "Frequently Asked Questions" section.
