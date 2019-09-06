@@ -131,7 +131,6 @@ impl ChangelogParser {
                                 release.version(version);
                             }
                         }
-
                     }
                     ChangelogSection::ChangesetHeader => {
                         section = ChangelogSection::Changeset(text.to_string())

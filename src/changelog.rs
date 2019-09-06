@@ -1,7 +1,7 @@
 use chrono::NaiveDate;
 use semver::Version;
-use std::fmt;
 use std::collections::HashMap;
+use std::fmt;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Change {
@@ -92,48 +92,51 @@ impl fmt::Display for Release {
 
         // Release changes.
         let mut changesets: HashMap<&str, Vec<&Change>> = HashMap::new();
-        let _: Vec<_> = self.changes.iter()
+        let _: Vec<_> = self
+            .changes
+            .iter()
             .map(|change| match change {
                 Added(_) => match changesets.get_mut("Added") {
                     Some(changes) => changes.push(change),
                     None => {
                         changesets.insert("Added", vec![change]);
-                    },
+                    }
                 },
                 Changed(_) => match changesets.get_mut("Changed") {
                     Some(changes) => changes.push(change),
                     None => {
                         changesets.insert("Changed", vec![change]);
-                    },
+                    }
                 },
                 Deprecated(_) => match changesets.get_mut("Deprecated") {
                     Some(changes) => changes.push(change),
                     None => {
                         changesets.insert("Deprecated", vec![change]);
-                    },
+                    }
                 },
                 Removed(_) => match changesets.get_mut("Removed") {
                     Some(changes) => changes.push(change),
                     None => {
                         changesets.insert("Removed", vec![change]);
-                    },
+                    }
                 },
                 Fixed(_) => match changesets.get_mut("Fixed") {
                     Some(changes) => changes.push(change),
                     None => {
                         changesets.insert("Fixed", vec![change]);
-                    },
+                    }
                 },
                 Security(_) => match changesets.get_mut("Security") {
                     Some(changes) => changes.push(change),
                     None => {
                         changesets.insert("Security", vec![change]);
-                    },
+                    }
                 },
             })
             .collect();
 
-        changesets = changesets.into_iter()
+        changesets = changesets
+            .into_iter()
             .filter(|(_, changes)| changes.clone().iter().count() > 0)
             .collect();
 
