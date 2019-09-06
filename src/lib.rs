@@ -25,7 +25,7 @@ enum ChangelogSection {
 
 pub struct ChangelogParser;
 impl ChangelogParser {
-    pub fn new(path: PathBuf) -> Changelog {
+    pub fn parse(path: PathBuf) -> Changelog {
         let mut document = String::new();
 
         File::open(path)
@@ -157,7 +157,7 @@ mod tests {
 
     #[test]
     fn it_works() {
-        let cl = ChangelogParser::new(PathBuf::from("test_changelog.md"));
+        let cl = ChangelogParser::parse(PathBuf::from("test_changelog.md"));
         dbg!(cl.clone());
         println!("{}", cl);
     }
