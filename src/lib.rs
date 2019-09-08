@@ -4,6 +4,9 @@ extern crate pulldown_cmark;
 extern crate derive_builder;
 #[macro_use]
 extern crate failure;
+extern crate serde;
+#[macro_use]
+extern crate serde_derive;
 
 use changelog::{Change, Changelog, ChangelogBuilder, Release, ReleaseBuilder};
 use chrono::NaiveDate;
@@ -157,10 +160,12 @@ impl ChangelogParser {
 mod tests {
     use super::*;
 
+    extern crate serde_json;
+
     #[test]
     fn it_works() {
-        let cl = ChangelogParser::parse(PathBuf::from("test_changelog.md"));
-        dbg!(cl.clone());
-        println!("{}", cl);
+        let cl = ChangelogParser::parse(PathBuf::from("test_changelog.md")).unwrap();
+
+        println!("{}", serde_json::to_string_pretty(&cl).unwrap());
     }
 }

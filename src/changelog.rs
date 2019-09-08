@@ -3,7 +3,7 @@ use semver::Version;
 use std::collections::HashMap;
 use std::fmt;
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum Change {
     Added(String),
     Changed(String),
@@ -19,7 +19,7 @@ pub enum ChangeError {
     InvalidChangeType(String),
 }
 
-#[derive(Debug, Clone, Builder)]
+#[derive(Debug, Clone, Builder, Serialize, Deserialize)]
 pub struct Release {
     #[builder(setter(strip_option), default)]
     version: Option<Version>,
@@ -33,7 +33,7 @@ pub struct Release {
     yanked: bool,
 }
 
-#[derive(Debug, Clone, Builder)]
+#[derive(Debug, Clone, Builder, Serialize, Deserialize)]
 pub struct Changelog {
     #[builder(setter(into))]
     title: String,
