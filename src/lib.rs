@@ -2,9 +2,12 @@ extern crate chrono;
 extern crate pulldown_cmark;
 #[macro_use]
 extern crate derive_builder;
+#[macro_use]
+extern crate failure;
 
 use changelog::{Change, Changelog, ChangelogBuilder, Release, ReleaseBuilder};
 use chrono::NaiveDate;
+use failure::Error;
 use pulldown_cmark::{Event, LinkType, Parser, Tag};
 use semver::Version;
 use std::fs::File;
@@ -25,13 +28,10 @@ enum ChangelogSection {
 
 pub struct ChangelogParser;
 impl ChangelogParser {
-    pub fn parse(path: PathBuf) -> Changelog {
+    pub fn parse(path: PathBuf) -> Result<Changelog, Error> {
         let mut document = String::new();
 
-        File::open(path)
-            .unwrap()
-            .read_to_string(&mut document)
-            .unwrap();
+        File::open(path)?.read_to_string(&mut document)?;
 
         let parser = Parser::new(&document);
 
@@ -82,7 +82,7 @@ impl ChangelogParser {
                 // Items.
                 Event::End(Tag::Item) => {
                     if let ChangelogSection::Changeset(name) = section.clone() {
-                        changeset.push(Change::new(&name, accumulator).unwrap());
+                        changeset.push(Change::new(&name, accumulator)?);
 
                         accumulator = String::new();
                     }
@@ -142,12 +142,14 @@ impl ChangelogParser {
             };
         }
 
-        ChangelogBuilder::default()
+        let changelog = ChangelogBuilder::default()
             .title(title)
             .description(description)
             .releases(releases)
             .build()
-            .unwrap()
+            .unwrap();
+
+        Ok(changelog)
     }
 }
 

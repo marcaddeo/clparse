@@ -13,6 +13,12 @@ pub enum Change {
     Security(String),
 }
 
+#[derive(Debug, Fail)]
+pub enum ChangeError {
+    #[fail(display = "invalid change type specified: {}", _0)]
+    InvalidChangeType(String),
+}
+
 #[derive(Debug, Clone, Builder)]
 pub struct Release {
     #[builder(setter(strip_option), default)]
@@ -38,7 +44,7 @@ pub struct Changelog {
 }
 
 impl Change {
-    pub fn new(change_type: &str, description: String) -> Result<Self, ()> {
+    pub fn new(change_type: &str, description: String) -> Result<Self, ChangeError> {
         use self::Change::*;
 
         match change_type {
@@ -48,7 +54,7 @@ impl Change {
             "Removed" => Ok(Removed(description)),
             "Fixed" => Ok(Fixed(description)),
             "Security" => Ok(Security(description)),
-            _ => Err(()),
+            _ => Err(ChangeError::InvalidChangeType(change_type.to_string())),
         }
     }
 }
