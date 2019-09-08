@@ -1,13 +1,3 @@
-extern crate chrono;
-extern crate pulldown_cmark;
-#[macro_use]
-extern crate derive_builder;
-#[macro_use]
-extern crate failure;
-extern crate serde;
-#[macro_use]
-extern crate serde_derive;
-
 use changelog::{Change, Changelog, ChangelogBuilder, Release, ReleaseBuilder};
 use chrono::NaiveDate;
 use failure::Error;
