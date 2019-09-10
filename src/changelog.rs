@@ -1,6 +1,7 @@
 use chrono::NaiveDate;
 use derive_builder::Builder;
 use failure::Fail;
+use fstrings::*;
 use semver::Version;
 use serde_derive::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -75,7 +76,7 @@ impl fmt::Display for Change {
             Security(description) => description,
         };
 
-        fmt.write_str(&format!("- {}\n", description))?;
+        fmt.write_str(&f!("- {description}\n"))?;
 
         Ok(())
     }
@@ -91,9 +92,9 @@ impl fmt::Display for Release {
         // Release Version.
         if let (Some(version), Some(date)) = (self.version.as_ref(), self.date) {
             if self.yanked {
-                fmt.write_str(&format!("{} - {} [YANKED]\n", version, date))?;
+                fmt.write_str(&f!("{version} - {date} [YANKED]\n"))?;
             } else {
-                fmt.write_str(&format!("[{}] - {}\n", version, date))?;
+                fmt.write_str(&f!("[{version}] - {date}\n"))?;
             }
         } else {
             fmt.write_str("[Unreleased]\n")?;
@@ -146,7 +147,7 @@ impl fmt::Display for Release {
             .collect();
 
         for (name, changes) in changesets {
-            fmt.write_str(&format!("### {}\n", name))?;
+            fmt.write_str(&f!("### {name}\n"))?;
 
             for change in changes {
                 fmt.write_str(&change.to_string())?;
@@ -161,7 +162,7 @@ impl fmt::Display for Release {
 
 impl fmt::Display for Changelog {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
-        fmt.write_str(&format!("# {}\n", self.title))?;
+        fmt.write_str(&f!("# {}\n", self.title))?;
         fmt.write_str(&self.description)?;
 
         let mut links: Vec<(Version, String)> = Vec::new();
@@ -176,7 +177,7 @@ impl fmt::Display for Changelog {
         links.sort_by(|(a, _), (b, _)| b.cmp(a));
 
         for (version, link) in links {
-            fmt.write_str(&format!("[{}]: {}\n", version, link))?;
+            fmt.write_str(&f!("[{version}]: {link}\n"))?;
         }
 
         Ok(())

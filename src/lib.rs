@@ -1,6 +1,7 @@
 use changelog::{Change, Changelog, ChangelogBuilder, Release, ReleaseBuilder};
 use chrono::NaiveDate;
 use failure::Error;
+use fstrings::*;
 use pulldown_cmark::{Event, LinkType, Parser, Tag};
 use semver::Version;
 use std::fs::File;
@@ -66,7 +67,7 @@ impl ChangelogParser {
                 // Links.
                 Event::Start(Tag::Link(LinkType::Inline, _, _)) => accumulator.push_str("["),
                 Event::End(Tag::Link(LinkType::Inline, href, _)) => {
-                    accumulator.push_str(&format!("]({})", href))
+                    accumulator.push_str(&f!("]({href})"));
                 }
                 Event::Start(Tag::Link(LinkType::Shortcut, href, _)) => {
                     release.link(href.to_string());
@@ -86,7 +87,7 @@ impl ChangelogParser {
                 Event::End(Tag::Paragraph) => accumulator.push_str("\n\n"),
 
                 // Inline code.
-                Event::Code(text) => accumulator.push_str(&format!("`{}`", text)),
+                Event::Code(text) => accumulator.push_str(&f!("`{text}`")),
 
                 // Text formatting.
                 Event::Start(Tag::Strong) | Event::End(Tag::Strong) => accumulator.push_str("**"),
