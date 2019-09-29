@@ -136,6 +136,9 @@ impl ChangelogParser {
             };
         }
 
+        release.changes(changeset.clone());
+        releases.push(release.build().unwrap());
+
         let changelog = ChangelogBuilder::default()
             .title(title)
             .description(description)
