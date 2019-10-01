@@ -8,8 +8,8 @@ pub fn main() -> Result<(), Error> {
             Arg::with_name("format")
                 .help("Sets the output format of the parsed CHANGELOG")
                 .takes_value(true)
-                .default_value("json")
-                .possible_values(&["json", "yaml"])
+                .default_value("markdown")
+                .possible_values(&["json", "yaml", "yml", "markdown", "md"])
                 .short("f")
                 .long("format"),
         )
@@ -29,9 +29,12 @@ pub fn main() -> Result<(), Error> {
         "json" => {
             println!("{}", serde_json::to_string_pretty(&changelog)?);
         }
-        "yaml" => {
+        "yaml" | "yml" => {
             println!("{}", serde_yaml::to_string(&changelog)?);
-        }
+        },
+        "markdown" | "md" => {
+            println!("{}", &changelog);
+        },
         _ => unreachable!(),
     }
 
