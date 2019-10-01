@@ -50,7 +50,7 @@ impl ChangelogParser {
                             description = accumulator.clone();
                             accumulator = String::new();
                         }
-                        ChangelogSection::Changeset(_) => {
+                        ChangelogSection::Changeset(_) | ChangelogSection::ReleaseHeader => {
                             release.changes(changeset.clone());
                             releases.push(release.build().unwrap());
 

@@ -99,6 +99,10 @@ impl fmt::Display for Release {
             }
         } else {
             fmt.write_str("[Unreleased]\n")?;
+
+            if self.changes.is_empty() {
+                fmt.write_str("\n")?;
+            }
         }
 
         // Release changes.
@@ -176,6 +180,12 @@ impl fmt::Display for Changelog {
         }
 
         links.sort_by(|(a, _), (b, _)| b.cmp(a));
+
+        if let Some(release) = self.releases.clone().first() {
+            if let (None, Some(link)) = (release.version.as_ref(), release.link.as_ref()) {
+                fmt.write_str(&f!("[Unreleased]: {link}\n"))?
+            }
+        }
 
         for (version, link) in links {
             fmt.write_str(&f!("[{version}]: {link}\n"))?;
