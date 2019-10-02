@@ -16,7 +16,7 @@ pub fn main() -> Result<(), Error> {
         )
         .arg(
             Arg::with_name("file")
-                .help("The CHANGELOG file to parse")
+                .help("The CHANGELOG file to parse. This should be either a Markdown, JSON, or Yaml representation of a changelog. Use '-' to read from stdin.")
                 .value_name("FILE")
                 .index(1)
                 .required(true),
