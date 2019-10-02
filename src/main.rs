@@ -28,26 +28,7 @@ pub fn main() -> Result<(), Error> {
         let mut buffer = String::new();
         io::stdin().read_to_string(&mut buffer)?;
 
-        let first_char = buffer.chars().next().unwrap();
-        let first_line: String = buffer.chars().take_while(|&c| c != '\n').collect();
-        let mut file_format: Option<&str> = match first_char {
-            '{' => Some("json"),
-            '#' => Some("markdown"),
-            _ => None,
-        };
-
-        if file_format.is_none() {
-            if first_line == "---" || first_line.contains("title:") {
-                file_format = Some("yaml");
-            }
-        }
-
-        match file_format {
-            Some("markdown") => ChangelogParser::parse_markdown(buffer)?,
-            Some("json") => ChangelogParser::parse_json(buffer)?,
-            Some("yaml") => ChangelogParser::parse_yaml(buffer)?,
-            _ => panic!("Could not determine file format from contents of stdin"),
-        }
+        ChangelogParser::parse_buffer(buffer)?
     } else {
         ChangelogParser::parse(file.into())?
     };

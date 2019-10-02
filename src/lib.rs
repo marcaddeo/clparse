@@ -1,6 +1,6 @@
 use changelog::{Change, Changelog, ChangelogBuilder, Release, ReleaseBuilder};
 use chrono::NaiveDate;
-use failure::Error;
+use failure::{bail, Error, Fail};
 use fstrings::*;
 use pulldown_cmark::{Event, LinkType, Parser, Tag};
 use semver::Version;
@@ -10,7 +10,14 @@ use std::path::PathBuf;
 
 pub mod changelog;
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug)]
+enum ChangelogFormat {
+    Markdown,
+    Json,
+    Yaml,
+}
+
+#[derive(Clone, Debug)]
 enum ChangelogSection {
     None,
     Title,
@@ -20,25 +27,32 @@ enum ChangelogSection {
     Changeset(String),
 }
 
+#[derive(Debug, Fail)]
+pub enum ChangelogParserError {
+    #[fail(display = "unable to determine file format from contents")]
+    UnableToDetermineFormat,
+}
+
 pub struct ChangelogParser;
 impl ChangelogParser {
     pub fn parse(path: PathBuf) -> Result<Changelog, Error> {
         let mut document = String::new();
-
-        File::open(path)?.read_to_string(&mut document)?;
-
-        Self::parse_markdown(document)
+        File::open(path.clone())?.read_to_string(&mut document)?;
+        Self::parse_buffer(document)
     }
 
-    pub fn parse_json(json: String) -> Result<Changelog, Error> {
-        serde_json::from_str(&json).map_err(|e| Error::from(e))
+    pub fn parse_buffer(buffer: String) -> Result<Changelog, Error> {
+        match Self::get_format_from_buffer(buffer.clone()) {
+            Ok(format) => match format {
+                ChangelogFormat::Markdown => Self::parse_markdown(buffer),
+                ChangelogFormat::Json => Self::parse_json(buffer),
+                ChangelogFormat::Yaml => Self::parse_yaml(buffer),
+            },
+            _ => bail!("Could not reliably determine file/input format"),
+        }
     }
 
-    pub fn parse_yaml(yaml: String) -> Result<Changelog, Error> {
-        serde_yaml::from_str(&yaml).map_err(|e| Error::from(e))
-    }
-
-    pub fn parse_markdown(markdown: String) -> Result<Changelog, Error> {
+    fn parse_markdown(markdown: String) -> Result<Changelog, Error> {
         let parser = Parser::new(&markdown);
 
         let mut section = ChangelogSection::None;
@@ -159,6 +173,40 @@ impl ChangelogParser {
             .unwrap();
 
         Ok(changelog)
+    }
+
+    fn parse_json(json: String) -> Result<Changelog, Error> {
+        serde_json::from_str(&json).map_err(Error::from)
+    }
+
+    fn parse_yaml(yaml: String) -> Result<Changelog, Error> {
+        serde_yaml::from_str(&yaml).map_err(Error::from)
+    }
+
+    fn get_format_from_buffer(buffer: String) -> Result<ChangelogFormat, ChangelogParserError> {
+        let first_char = match buffer.chars().next() {
+            Some(first_char) => first_char,
+            _ => {
+                return Err(ChangelogParserError::UnableToDetermineFormat);
+            }
+        };
+
+        let first_line: String = buffer.chars().take_while(|&c| c != '\n').collect();
+        let mut format: Option<ChangelogFormat> = match first_char {
+            '{' => Some(ChangelogFormat::Json),
+            '#' => Some(ChangelogFormat::Markdown),
+            _ => None,
+        };
+
+        if format.is_none() && (first_line == "---" || first_line.contains("title:")) {
+            format = Some(ChangelogFormat::Yaml);
+        }
+
+        if let Some(format) = format {
+            Ok(format)
+        } else {
+            Err(ChangelogParserError::UnableToDetermineFormat)
+        }
     }
 }
 
