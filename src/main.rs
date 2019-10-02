@@ -1,6 +1,7 @@
 use clap::{app_from_crate, crate_authors, crate_description, crate_name, crate_version, Arg};
 use clparse::ChangelogParser;
 use failure::Error;
+use std::io::{self, Read};
 
 pub fn main() -> Result<(), Error> {
     let matches = app_from_crate!()
@@ -22,10 +23,36 @@ pub fn main() -> Result<(), Error> {
         )
         .get_matches();
 
-    let changelog = ChangelogParser::parse(matches.value_of("file").unwrap().into())?;
-    let format = matches.value_of("format").unwrap();
+    let file = matches.value_of("file").unwrap();
+    let changelog = if file == "-" {
+        let mut buffer = String::new();
+        io::stdin().read_to_string(&mut buffer)?;
 
-    match format {
+        let first_char = buffer.chars().next().unwrap();
+        let first_line: String = buffer.chars().take_while(|&c| c != '\n').collect();
+        let mut file_format: Option<&str> = match first_char {
+            '{' => Some("json"),
+            '#' => Some("markdown"),
+            _ => None,
+        };
+
+        if file_format.is_none() {
+            if first_line == "---" || first_line.contains("title:") {
+                file_format = Some("yaml");
+            }
+        }
+
+        match file_format {
+            Some("markdown") => ChangelogParser::parse_markdown(buffer)?,
+            Some("json") => ChangelogParser::parse_json(buffer)?,
+            Some("yaml") => ChangelogParser::parse_yaml(buffer)?,
+            _ => panic!("Could not determine file format from contents of stdin"),
+        }
+    } else {
+        ChangelogParser::parse(file.into())?
+    };
+
+    match matches.value_of("format").unwrap() {
         "json" => {
             println!("{}", serde_json::to_string_pretty(&changelog)?);
         }

@@ -27,7 +27,19 @@ impl ChangelogParser {
 
         File::open(path)?.read_to_string(&mut document)?;
 
-        let parser = Parser::new(&document);
+        Self::parse_markdown(document)
+    }
+
+    pub fn parse_json(json: String) -> Result<Changelog, Error> {
+        serde_json::from_str(&json).map_err(|e| Error::from(e))
+    }
+
+    pub fn parse_yaml(yaml: String) -> Result<Changelog, Error> {
+        serde_yaml::from_str(&yaml).map_err(|e| Error::from(e))
+    }
+
+    pub fn parse_markdown(markdown: String) -> Result<Changelog, Error> {
+        let parser = Parser::new(&markdown);
 
         let mut section = ChangelogSection::None;
 
