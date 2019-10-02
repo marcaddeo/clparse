@@ -3,6 +3,15 @@
 A Changelog format. The CHANGELOG file can be Markdown, JSON, or YAML format
 and can also be output into any of those formats once parsed.
 
+## Installation
+
+### Cargo
+```
+$ cargo install --git https://github.com/marcaddeo/clparse
+```
+
+_More installation methods coming soon_
+
 ## Usage
 ```
 $ clparse --help
@@ -30,7 +39,7 @@ ARGS:
 By default, `clparse` will parse the input file, and output the changelog in
 markdown format.
 
-```
+```markdown
 $ clparse CHANGELOG.md
 # Changelog
 All notable changes to this project will be documented in this file.
