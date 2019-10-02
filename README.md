@@ -1,6 +1,7 @@
 # `clparse`
-`clparse` is a command line tool for parsing CHANGELOG.md files using the Keep
-A Changelog format.
+`clparse` is a command line tool for parsing CHANGELOG files that use the Keep
+A Changelog format. The CHANGELOG file can be Markdown, JSON, or YAML format
+and can also be output into any of those formats once parsed.
 
 ## Usage
 ```
@@ -57,8 +58,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [0.0.1]: https://github.com/example/example/releases/tag/v0.0.1
 ```
 
-We can then transform the markdown into a format that can be easily used in
-scripts:
+We can transform the markdown into a format that can be easily used in scripts:
 
 ```
 $ clparse -f json CHANGELOG.md
