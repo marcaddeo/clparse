@@ -58,10 +58,10 @@ pub fn main() -> Result<(), Error> {
         }
         "yaml" | "yml" => {
             println!("{}", serde_yaml::to_string(&changelog)?);
-        },
+        }
         "markdown" | "md" => {
             println!("{}", &changelog);
-        },
+        }
         _ => unreachable!(),
     }
 
