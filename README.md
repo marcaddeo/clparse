@@ -69,7 +69,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 We can transform the markdown into a format that can be easily used in scripts:
 
-```
+```json
 $ clparse -f json CHANGELOG.md
 {
   "title": "Changelog",
@@ -117,7 +117,7 @@ $ clparse -f json CHANGELOG.md
 
 `clparse` can also parse JSON and YAML representations of the changelog:
 
-```
+```markdown
 $ clparse CHANGELOG.json
 # Changelog
 All notable changes to this project will be documented in this file.
@@ -147,7 +147,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 And finally, we can read from stdin by passing `-` as the `FILE` argument:
 
-```
+```markdown
 $ clparse -f json CHANGELOG.md | clparse -
 # Changelog
 All notable changes to this project will be documented in this file.
