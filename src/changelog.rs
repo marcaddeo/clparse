@@ -76,6 +76,7 @@ impl fmt::Display for Change {
             Fixed(description) => description,
             Security(description) => description,
         };
+        let description = description.as_str().replace("\n", "\n  ");
 
         fmt.write_str(&f!("- {description}\n"))?;
 
