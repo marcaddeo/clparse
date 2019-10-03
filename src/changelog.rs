@@ -5,7 +5,17 @@ use fstrings::*;
 use semver::Version;
 use serde_derive::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::fmt;
+use std::{convert::TryFrom, fmt};
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum ChangeKind {
+    Added,
+    Changed,
+    Deprecated,
+    Removed,
+    Fixed,
+    Security,
+}
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
@@ -60,6 +70,22 @@ impl Change {
             "Fixed" => Ok(Fixed(description)),
             "Security" => Ok(Security(description)),
             _ => Err(ChangeError::InvalidChangeType(change_type.to_string())),
+        }
+    }
+}
+
+impl TryFrom<&str> for ChangeKind {
+    type Error = ChangeError;
+
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        match value.to_lowercase().as_str() {
+            "added" => Ok(ChangeKind::Added),
+            "changed" => Ok(ChangeKind::Changed),
+            "deprecated" => Ok(ChangeKind::Deprecated),
+            "removed" => Ok(ChangeKind::Removed),
+            "fixed" => Ok(ChangeKind::Fixed),
+            "security" => Ok(ChangeKind::Security),
+            _ => Err(ChangeError::InvalidChangeType(value.to_string())),
         }
     }
 }
