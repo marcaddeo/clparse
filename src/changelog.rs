@@ -52,13 +52,13 @@ impl Change {
     pub fn new(change_type: &str, description: String) -> Result<Self, ChangeError> {
         use self::Change::*;
 
-        match change_type {
-            "Added" => Ok(Added(description)),
-            "Changed" => Ok(Changed(description)),
-            "Deprecated" => Ok(Deprecated(description)),
-            "Removed" => Ok(Removed(description)),
-            "Fixed" => Ok(Fixed(description)),
-            "Security" => Ok(Security(description)),
+        match change_type.to_lowercase().as_str() {
+            "added" => Ok(Added(description)),
+            "changed" => Ok(Changed(description)),
+            "deprecated" => Ok(Deprecated(description)),
+            "removed" => Ok(Removed(description)),
+            "fixed" => Ok(Fixed(description)),
+            "security" => Ok(Security(description)),
             _ => Err(ChangeError::InvalidChangeType(change_type.to_string())),
         }
     }
