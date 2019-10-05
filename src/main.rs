@@ -1,10 +1,12 @@
-use clap::{app_from_crate, crate_authors, crate_description, crate_name, crate_version, Arg};
+use clap::{app_from_crate, crate_authors, crate_description, crate_name, crate_version, AppSettings, Arg};
 use clparse::ChangelogParser;
 use failure::Error;
 use std::io::{self, Read};
 
 pub fn main() -> Result<(), Error> {
     let matches = app_from_crate!()
+        .setting(AppSettings::DisableHelpSubcommand)
+        .global_setting(AppSettings::ColoredHelp)
         .arg(
             Arg::with_name("format")
                 .help("Sets the output format of the parsed CHANGELOG")
