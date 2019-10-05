@@ -2,9 +2,9 @@ use chrono::NaiveDate;
 use derive_builder::Builder;
 use failure::Fail;
 use fstrings::*;
+use indexmap::indexmap;
 use semver::Version;
 use serde_derive::{Deserialize, Serialize};
-use indexmap::indexmap;
 use std::fmt;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -107,7 +107,7 @@ impl fmt::Display for Release {
         }
 
         // Release changes.
-        let mut changesets = indexmap!{
+        let mut changesets = indexmap! {
             "Added" => Vec::new(),
             "Changed" => Vec::new(),
             "Deprecated" => Vec::new(),
@@ -116,42 +116,12 @@ impl fmt::Display for Release {
             "Security" => Vec::new(),
         };
         self.changes.iter().for_each(|change| match change {
-            Added(_) => match changesets.get_mut("Added") {
-                Some(changes) => changes.push(change),
-                None => {
-                    changesets.insert("Added", vec![change]);
-                }
-            },
-            Changed(_) => match changesets.get_mut("Changed") {
-                Some(changes) => changes.push(change),
-                None => {
-                    changesets.insert("Changed", vec![change]);
-                }
-            },
-            Deprecated(_) => match changesets.get_mut("Deprecated") {
-                Some(changes) => changes.push(change),
-                None => {
-                    changesets.insert("Deprecated", vec![change]);
-                }
-            },
-            Removed(_) => match changesets.get_mut("Removed") {
-                Some(changes) => changes.push(change),
-                None => {
-                    changesets.insert("Removed", vec![change]);
-                }
-            },
-            Fixed(_) => match changesets.get_mut("Fixed") {
-                Some(changes) => changes.push(change),
-                None => {
-                    changesets.insert("Fixed", vec![change]);
-                }
-            },
-            Security(_) => match changesets.get_mut("Security") {
-                Some(changes) => changes.push(change),
-                None => {
-                    changesets.insert("Security", vec![change]);
-                }
-            },
+            Added(_) => changesets.get_mut("Added").unwrap().push(change),
+            Changed(_) => changesets.get_mut("Changed").unwrap().push(change),
+            Deprecated(_) => changesets.get_mut("Deprecated").unwrap().push(change),
+            Removed(_) => changesets.get_mut("Removed").unwrap().push(change),
+            Fixed(_) => changesets.get_mut("Fixed").unwrap().push(change),
+            Security(_) => changesets.get_mut("Security").unwrap().push(change),
         });
 
         changesets = changesets
