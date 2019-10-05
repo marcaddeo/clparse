@@ -108,6 +108,12 @@ impl fmt::Display for Release {
 
         // Release changes.
         let mut changesets: HashMap<&str, Vec<&Change>> = HashMap::new();
+        changesets.insert("Added", Vec::new());
+        changesets.insert("Changed", Vec::new());
+        changesets.insert("Deprecated", Vec::new());
+        changesets.insert("Removed", Vec::new());
+        changesets.insert("Fixed", Vec::new());
+        changesets.insert("Security", Vec::new());
         self.changes.iter().for_each(|change| match change {
             Added(_) => match changesets.get_mut("Added") {
                 Some(changes) => changes.push(change),
