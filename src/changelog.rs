@@ -4,7 +4,7 @@ use failure::Fail;
 use fstrings::*;
 use semver::Version;
 use serde_derive::{Deserialize, Serialize};
-use std::collections::HashMap;
+use indexmap::indexmap;
 use std::fmt;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -107,13 +107,14 @@ impl fmt::Display for Release {
         }
 
         // Release changes.
-        let mut changesets: HashMap<&str, Vec<&Change>> = HashMap::new();
-        changesets.insert("Added", Vec::new());
-        changesets.insert("Changed", Vec::new());
-        changesets.insert("Deprecated", Vec::new());
-        changesets.insert("Removed", Vec::new());
-        changesets.insert("Fixed", Vec::new());
-        changesets.insert("Security", Vec::new());
+        let mut changesets = indexmap!{
+            "Added" => Vec::new(),
+            "Changed" => Vec::new(),
+            "Deprecated" => Vec::new(),
+            "Removed" => Vec::new(),
+            "Fixed" => Vec::new(),
+            "Security" => Vec::new(),
+        };
         self.changes.iter().for_each(|change| match change {
             Added(_) => match changesets.get_mut("Added") {
                 Some(changes) => changes.push(change),
