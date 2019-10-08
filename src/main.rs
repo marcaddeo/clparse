@@ -8,12 +8,12 @@ use std::io::{self, Read};
 pub fn main() -> Result<()> {
     let matches = app_from_crate!()
         .setting(AppSettings::DisableHelpSubcommand)
+        .setting(AppSettings::ArgRequiredElseHelp)
         .global_setting(AppSettings::ColoredHelp)
         .arg(
             Arg::with_name("format")
                 .help("Sets the output format of the parsed CHANGELOG")
                 .takes_value(true)
-                .default_value("markdown")
                 .possible_values(&["json", "yaml", "yml", "markdown", "md"])
                 .short("f")
                 .long("format"),
@@ -37,7 +37,7 @@ pub fn main() -> Result<()> {
         ChangelogParser::parse(file.into())?
     };
 
-    match matches.value_of("format").unwrap() {
+    match matches.value_of("format").unwrap_or("markdown") {
         "json" => {
             println!("{}", serde_json::to_string_pretty(&changelog)?);
         }
