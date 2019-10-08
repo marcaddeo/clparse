@@ -1,11 +1,11 @@
+use anyhow::Result;
 use clap::{
     app_from_crate, crate_authors, crate_description, crate_name, crate_version, AppSettings, Arg,
 };
 use clparse::ChangelogParser;
-use failure::Error;
 use std::io::{self, Read};
 
-pub fn main() -> Result<(), Error> {
+pub fn main() -> Result<()> {
     let matches = app_from_crate!()
         .setting(AppSettings::DisableHelpSubcommand)
         .global_setting(AppSettings::ColoredHelp)

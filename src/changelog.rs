@@ -1,6 +1,7 @@
+use anyhow::Result;
+use err_derive::Error;
 use chrono::NaiveDate;
 use derive_builder::Builder;
-use failure::Fail;
 use fstrings::*;
 use indexmap::indexmap;
 use semver::Version;
@@ -18,9 +19,9 @@ pub enum Change {
     Security(String),
 }
 
-#[derive(Debug, Fail)]
+#[derive(Debug, Error)]
 pub enum ChangeError {
-    #[fail(display = "invalid change type specified: {}", _0)]
+    #[error(display = "invalid change type specified: {}", _0)]
     InvalidChangeType(String),
 }
 
@@ -49,7 +50,7 @@ pub struct Changelog {
 }
 
 impl Change {
-    pub fn new(change_type: &str, description: String) -> Result<Self, ChangeError> {
+    pub fn new(change_type: &str, description: String) -> Result<Self> {
         use self::Change::*;
 
         match change_type.to_lowercase().as_str() {
@@ -59,7 +60,7 @@ impl Change {
             "removed" => Ok(Removed(description)),
             "fixed" => Ok(Fixed(description)),
             "security" => Ok(Security(description)),
-            _ => Err(ChangeError::InvalidChangeType(change_type.to_string())),
+            _ => Err(ChangeError::InvalidChangeType(change_type.to_string()).into()),
         }
     }
 }
