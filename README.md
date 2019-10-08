@@ -5,6 +5,11 @@ and can also be output into any of those formats once parsed.
 
 ## Installation
 
+### Homebrew
+```
+$ brew install marcaddeo/clsuite/clparse
+```
+
 ### Cargo
 ```
 $ cargo install --git https://github.com/marcaddeo/clparse
@@ -14,10 +19,9 @@ _More installation methods coming soon_
 
 ## Usage
 ```
-$ clparse --help
-clparse 0.1.0
+clparse 0.2.0
 Marc Addeo <hi@marc.cx>
-A command line tool for parsing CHANGELOG.md files using the Keep A Changelog format.
+A command line tool for parsing CHANGELOG.md files that use the Keep A Changelog format.
 
 USAGE:
     clparse [OPTIONS] <FILE>
@@ -27,7 +31,7 @@ FLAGS:
     -V, --version    Prints version information
 
 OPTIONS:
-    -f, --format <format>    Sets the output format of the parsed CHANGELOG [default: markdown]  [possible values: json,
+    -f, --format <format>    Sets the output format of the parsed CHANGELOG [default: markdown] [possible values: json,
                              yaml, yml, markdown, md]
 
 ARGS:
