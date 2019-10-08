@@ -1,6 +1,7 @@
+use anyhow::Result;
+use err_derive::Error;
 use changelog::{Change, Changelog, ChangelogBuilder, Release, ReleaseBuilder};
 use chrono::NaiveDate;
-use failure::{bail, Error, Fail};
 use fstrings::*;
 use pulldown_cmark::{Event, LinkType, Parser, Tag};
 use semver::Version;
@@ -27,32 +28,34 @@ enum ChangelogSection {
     Changeset(String),
 }
 
-#[derive(Debug, Fail)]
+#[derive(Debug, Error)]
 pub enum ChangelogParserError {
-    #[fail(display = "unable to determine file format from contents")]
+    #[error(display = "unable to determine file format from contents")]
     UnableToDetermineFormat,
+    #[error(display = "error building release")]
+    ErrorBuildingRelease(String),
 }
 
 pub struct ChangelogParser;
 impl ChangelogParser {
-    pub fn parse(path: PathBuf) -> Result<Changelog, Error> {
+    pub fn parse(path: PathBuf) -> Result<Changelog> {
         let mut document = String::new();
         File::open(path.clone())?.read_to_string(&mut document)?;
         Self::parse_buffer(document)
     }
 
-    pub fn parse_buffer(buffer: String) -> Result<Changelog, Error> {
+    pub fn parse_buffer(buffer: String) -> Result<Changelog> {
         match Self::get_format_from_buffer(buffer.clone()) {
             Ok(format) => match format {
                 ChangelogFormat::Markdown => Self::parse_markdown(buffer),
                 ChangelogFormat::Json => Self::parse_json(buffer),
                 ChangelogFormat::Yaml => Self::parse_yaml(buffer),
             },
-            _ => bail!("Could not reliably determine file/input format"),
+            _ => Err(ChangelogParserError::UnableToDetermineFormat.into()),
         }
     }
 
-    fn parse_markdown(markdown: String) -> Result<Changelog, Error> {
+    fn parse_markdown(markdown: String) -> Result<Changelog> {
         let parser = Parser::new(&markdown);
 
         let mut section = ChangelogSection::None;
@@ -78,7 +81,7 @@ impl ChangelogParser {
                         }
                         ChangelogSection::Changeset(_) | ChangelogSection::ReleaseHeader => {
                             release.changes(changeset.clone());
-                            releases.push(release.build().unwrap());
+                            releases.push(release.build().map_err(ChangelogParserError::ErrorBuildingRelease)?);
 
                             changeset = Vec::new();
                             release = ReleaseBuilder::default();
@@ -163,31 +166,35 @@ impl ChangelogParser {
         }
 
         release.changes(changeset.clone());
-        releases.push(release.build().unwrap());
+        releases.push(release.build().map_err(ChangelogParserError::ErrorBuildingRelease)?);
 
         let changelog = ChangelogBuilder::default()
             .title(title)
             .description(description)
             .releases(releases)
             .build()
-            .unwrap();
+            .map_err(ChangelogParserError::ErrorBuildingRelease)?;
 
         Ok(changelog)
     }
 
-    fn parse_json(json: String) -> Result<Changelog, Error> {
-        serde_json::from_str(&json).map_err(Error::from)
+    fn parse_json(json: String) -> Result<Changelog> {
+        let changelog: Changelog = serde_json::from_str(&json)?;
+
+        Ok(changelog)
     }
 
-    fn parse_yaml(yaml: String) -> Result<Changelog, Error> {
-        serde_yaml::from_str(&yaml).map_err(Error::from)
+    fn parse_yaml(yaml: String) -> Result<Changelog> {
+        let changelog: Changelog = serde_yaml::from_str(&yaml)?;
+
+        Ok(changelog)
     }
 
-    fn get_format_from_buffer(buffer: String) -> Result<ChangelogFormat, ChangelogParserError> {
+    fn get_format_from_buffer(buffer: String) -> Result<ChangelogFormat> {
         let first_char = match buffer.chars().next() {
             Some(first_char) => first_char,
             _ => {
-                return Err(ChangelogParserError::UnableToDetermineFormat);
+                return Err(ChangelogParserError::UnableToDetermineFormat.into());
             }
         };
 
@@ -205,7 +212,7 @@ impl ChangelogParser {
         if let Some(format) = format {
             Ok(format)
         } else {
-            Err(ChangelogParserError::UnableToDetermineFormat)
+            Err(ChangelogParserError::UnableToDetermineFormat.into())
         }
     }
 }
