@@ -12,7 +12,7 @@ pub fn main() -> Result<()> {
         .global_setting(AppSettings::ColoredHelp)
         .arg(
             Arg::with_name("format")
-                .help("Sets the output format of the parsed CHANGELOG")
+                .help("Sets the output format of the parsed CHANGELOG [default: markdown]")
                 .takes_value(true)
                 .possible_values(&["json", "yaml", "yml", "markdown", "md"])
                 .short("f")
