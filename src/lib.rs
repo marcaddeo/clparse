@@ -216,17 +216,3 @@ impl ChangelogParser {
         }
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    extern crate serde_json;
-
-    #[test]
-    fn it_works() {
-        let cl = ChangelogParser::parse(PathBuf::from("test_changelog.md")).unwrap();
-
-        println!("{}", serde_json::to_string_pretty(&cl).unwrap());
-    }
-}
