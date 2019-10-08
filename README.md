@@ -10,12 +10,16 @@ and can also be output into any of those formats once parsed.
 $ brew install marcaddeo/clsuite/clparse
 ```
 
+### Debian
+```
+$ curl -LO https://github.com/marcaddeo/clparse/releases/download/0.2.0/clparse_0.2.0_amd64.deb
+$ sudo dpkg -i clparse_0.2.0_amd64.deb
+```
+
 ### Cargo
 ```
 $ cargo install --git https://github.com/marcaddeo/clparse
 ```
-
-_More installation methods coming soon_
 
 ## Usage
 ```
