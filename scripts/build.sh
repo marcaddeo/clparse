@@ -7,6 +7,7 @@
 ## * Build the application normally, in release mode
 ## * Build a .deb file in a Docker container
 ## * Build a Linux musl release in a Docker container
+## * Copy all build artifacts to an artifacts folder in the root of the repo
 ###
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 PROJECT=$(cargo read-manifest | jq -rM ".name")
