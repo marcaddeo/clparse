@@ -2,7 +2,6 @@ use anyhow::Result;
 use err_derive::Error;
 use chrono::NaiveDate;
 use derive_builder::Builder;
-use fstrings::*;
 use indexmap::indexmap;
 use semver::Version;
 use serde_derive::{Deserialize, Serialize};
@@ -79,7 +78,7 @@ impl fmt::Display for Change {
         };
         let description = description.as_str().replace("\n", "\n  ");
 
-        fmt.write_str(&f!("- {description}\n"))?;
+        fmt.write_str(&format!("- {}\n", description))?;
 
         Ok(())
     }
@@ -95,9 +94,9 @@ impl fmt::Display for Release {
         // Release Version.
         if let (Some(version), Some(date)) = (self.version.as_ref(), self.date) {
             if self.yanked {
-                fmt.write_str(&f!("{version} - {date} [YANKED]\n"))?;
+                fmt.write_str(&format!("{} - {} [YANKED]\n", version, date))?;
             } else {
-                fmt.write_str(&f!("[{version}] - {date}\n"))?;
+                fmt.write_str(&format!("[{}] - {}\n", version, date))?;
             }
         } else {
             fmt.write_str("[Unreleased]\n")?;
@@ -131,7 +130,7 @@ impl fmt::Display for Release {
             .collect();
 
         for (name, changes) in changesets {
-            fmt.write_str(&f!("### {name}\n"))?;
+            fmt.write_str(&format!("### {}\n", name))?;
 
             for change in changes {
                 fmt.write_str(&change.to_string())?;
@@ -146,7 +145,7 @@ impl fmt::Display for Release {
 
 impl fmt::Display for Changelog {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
-        fmt.write_str(&f!("# {}\n", self.title))?;
+        fmt.write_str(&format!("# {}\n", self.title))?;
         fmt.write_str(&self.description)?;
 
         let mut links: Vec<(Version, String)> = Vec::new();
@@ -162,12 +161,12 @@ impl fmt::Display for Changelog {
 
         if let Some(release) = self.releases.clone().first() {
             if let (None, Some(link)) = (release.version.as_ref(), release.link.as_ref()) {
-                fmt.write_str(&f!("[Unreleased]: {link}\n"))?
+                fmt.write_str(&format!("[Unreleased]: {}\n", link))?
             }
         }
 
         for (version, link) in links {
-            fmt.write_str(&f!("[{version}]: {link}\n"))?;
+            fmt.write_str(&format!("[{}]: {}\n", version, link))?;
         }
 
         Ok(())
