@@ -12,8 +12,8 @@ $ brew install marcaddeo/clsuite/clparse
 
 ### Debian
 ```
-$ curl -LO https://github.com/marcaddeo/clparse/releases/download/0.2.0/clparse_0.2.0_amd64.deb
-$ sudo dpkg -i clparse_0.2.0_amd64.deb
+$ curl -LO https://github.com/marcaddeo/clparse/releases/download/0.3.0/clparse_0.3.0_amd64.deb
+$ sudo dpkg -i clparse_0.3.0_amd64.deb
 ```
 
 ### Cargo
