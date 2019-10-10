@@ -23,7 +23,7 @@ $ cargo install --git https://github.com/marcaddeo/clparse
 
 ## Usage
 ```
-clparse 0.2.0
+clparse 0.3.0
 Marc Addeo <hi@marc.cx>
 A command line tool for parsing CHANGELOG.md files that use the Keep A Changelog format.
 
