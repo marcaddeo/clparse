@@ -23,7 +23,6 @@ serde_derive = "1.0.100"
 serde_json = "1.0.40"
 clap = { version = "2.33.0", features = ["yaml", "suggestions", "color"] }
 serde_yaml = "0.8.9"
-fstrings = "0.1.4"
 indexmap = "1.2.0"
 anyhow = "1.0.3"
 err-derive = "0.1.6"
