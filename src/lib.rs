@@ -61,11 +61,13 @@ impl ChangelogParser {
 
         let mut title = String::new();
         let mut description = String::new();
+        let mut description_links = String::new();
         let mut releases: Vec<Release> = Vec::new();
 
         let mut release = ReleaseBuilder::default();
         let mut changeset: Vec<Change> = Vec::new();
         let mut accumulator = String::new();
+        let mut link_accumulator = String::new();
 
         for event in parser {
             match event {
@@ -94,8 +96,18 @@ impl ChangelogParser {
 
                 // Links.
                 Event::Start(Tag::Link(LinkType::Inline, _, _)) => accumulator.push_str("["),
+                Event::Start(Tag::Link(LinkType::Collapsed, _, _)) => {
+                    accumulator.push_str("[");
+                    link_accumulator = String::from("[");
+                }
                 Event::End(Tag::Link(LinkType::Inline, href, _)) => {
                     accumulator.push_str(&format!("]({})", href));
+                }
+                Event::End(Tag::Link(LinkType::Collapsed, href, _)) => {
+                    accumulator.push_str("][]");
+                    link_accumulator.push_str(&format!("]: {}\n", href));
+                    description_links.push_str(&link_accumulator);
+                    link_accumulator = String::new();
                 }
                 Event::Start(Tag::Link(LinkType::Shortcut, href, _)) => {
                     release.link(href.to_string());
@@ -129,7 +141,13 @@ impl ChangelogParser {
                 // Text.
                 Event::Text(text) => match section {
                     ChangelogSection::Title => title = text.to_string(),
-                    ChangelogSection::Description => accumulator.push_str(&text),
+                    ChangelogSection::Description => {
+                        accumulator.push_str(&text);
+
+                        if !link_accumulator.is_empty() {
+                            link_accumulator.push_str(&text);
+                        }
+                    }
                     ChangelogSection::ReleaseHeader => {
                         let text = text.trim();
 
@@ -166,6 +184,10 @@ impl ChangelogParser {
 
         release.changes(changeset.clone());
         releases.push(release.build().map_err(ChangelogParserError::ErrorBuildingRelease)?);
+
+        if !description_links.is_empty() {
+            description = format!("{}{}\n", description, description_links);
+        }
 
         let changelog = ChangelogBuilder::default()
             .title(title)
