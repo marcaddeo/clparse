@@ -1,0 +1,4 @@
+---
+- fixed: Fix inconsistencies in the README examples
+- added: Add support for link references in the CHANGELOG description
+- fixed: "Fix error when piping the output of `clparse`"
