@@ -16,6 +16,13 @@ $ curl -LO https://github.com/marcaddeo/clparse/releases/download/0.3.0/clparse_
 $ sudo dpkg -i clparse_0.3.0_amd64.deb
 ```
 
+### Linux
+```
+$ curl -LO https://github.com/marcaddeo/clparse/releases/download/0.3.0/clparse-0.3.0-x86_64-unknown-linux-musl.tar.gz
+$ tar czvf clparse-0.3.0-x86_64-unknown-linux-musl.tar.gz
+$ sudo mv clparse /usr/local/bin/clparse
+```
+
 ### Cargo
 ```
 $ cargo install --git https://github.com/marcaddeo/clparse
