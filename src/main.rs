@@ -3,7 +3,7 @@ use clap::{
     app_from_crate, crate_authors, crate_description, crate_name, crate_version, AppSettings, Arg,
 };
 use clparse::ChangelogParser;
-use std::io::{self, Read};
+use std::io::{self, Read, Write};
 
 pub fn main() -> Result<()> {
     let matches = app_from_crate!()
@@ -37,18 +37,20 @@ pub fn main() -> Result<()> {
         ChangelogParser::parse(file.into())?
     };
 
-    match matches.value_of("format").unwrap_or("markdown") {
+    let output = match matches.value_of("format").unwrap_or("markdown") {
         "json" => {
-            println!("{}", serde_json::to_string_pretty(&changelog)?);
+            format!("{}", serde_json::to_string_pretty(&changelog)?)
         }
         "yaml" | "yml" => {
-            println!("{}", serde_yaml::to_string(&changelog)?);
+            format!("{}", serde_yaml::to_string(&changelog)?)
         }
         "markdown" | "md" => {
-            println!("{}", &changelog);
+            format!("{}", &changelog)
         }
         _ => unreachable!(),
-    }
+    };
+
+    io::stdout().write_all(output.as_bytes())?;
 
     Ok(())
 }
