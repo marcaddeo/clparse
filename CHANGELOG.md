@@ -5,6 +5,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Add support for link references in the CHANGELOG description
+- Add Linux (musl) installation instructions
+
+### Fixed
+- Fix inconsistencies in the README examples
+- Fix error when piping the output of `clparse`
 
 ## [0.3.0] - 2019-10-10
 ### Added
@@ -22,11 +29,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Revise error handling
 - Update binary to show the help output if no args are passed
 
-### Fixed
-- Fix typo in the crate description
-
 ### Removed
 - Remove unit tests since they didn't actually test anything
+
+### Fixed
+- Fix typo in the crate description
 
 ## [0.1.0] - 2019-10-07
 ### Added
