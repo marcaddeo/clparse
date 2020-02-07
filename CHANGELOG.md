@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add getters to the `Changelog` and `Release` structs
 - Add a `unreleased_changes` method to the `Changelog` struct
 
+### Changed
+- Ensure change entries are wrapped at 80 characters
+
 ## [0.4.0] - 2019-10-11
 ### Added
 - Add support for link references in the CHANGELOG description
