@@ -2,6 +2,7 @@ use anyhow::Result;
 use err_derive::Error;
 use chrono::NaiveDate;
 use derive_builder::Builder;
+use derive_getters::Getters;
 use indexmap::indexmap;
 use semver::Version;
 use serde_derive::{Deserialize, Serialize};
@@ -24,7 +25,7 @@ pub enum ChangeError {
     InvalidChangeType(String),
 }
 
-#[derive(Debug, Clone, Builder, Serialize, Deserialize)]
+#[derive(Debug, Clone, Builder, Getters, Serialize, Deserialize)]
 pub struct Release {
     #[builder(setter(strip_option), default)]
     version: Option<Version>,
@@ -38,7 +39,7 @@ pub struct Release {
     yanked: bool,
 }
 
-#[derive(Debug, Clone, Builder, Serialize, Deserialize)]
+#[derive(Debug, Clone, Builder, Getters, Serialize, Deserialize)]
 pub struct Changelog {
     #[builder(setter(into))]
     title: String,
@@ -46,6 +47,17 @@ pub struct Changelog {
     description: String,
     #[builder(default)]
     releases: Vec<Release>,
+}
+
+impl Changelog {
+    pub fn unreleased_changes(&self) -> Vec<Change> {
+        self.releases.clone()
+            .into_iter()
+            .filter(|r| r.version.is_none())
+            .map(|r| r.changes.clone())
+            .flatten()
+            .collect()
+    }
 }
 
 impl Change {
