@@ -6,9 +6,15 @@ keywords = ["changelog", "changelog parser", "keepachangelog", "keep a changelog
 categories = ["command-line-utilities", "development-tools", "text-processing"]
 homepage = "https://github.com/marcaddeo/clparse"
 repository = "https://github.com/marcaddeo/clparse"
+documentation = "https://github.com/marcaddeo/clparse#clparse"
 authors = ["Marc Addeo <hi@marc.cx>"]
 license = "MIT"
 edition = "2018"
+exclude = [
+    ".cl",
+    ".gitignore",
+    "scripts"
+]
 
 [lib]
 name = "clparse"
