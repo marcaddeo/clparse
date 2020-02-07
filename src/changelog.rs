@@ -7,6 +7,7 @@ use indexmap::indexmap;
 use semver::Version;
 use serde_derive::{Deserialize, Serialize};
 use std::fmt;
+use textwrap::wrap;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
@@ -88,7 +89,8 @@ impl fmt::Display for Change {
             Fixed(description) => description,
             Security(description) => description,
         };
-        let description = description.as_str().replace("\n", "\n  ");
+        let description = description.as_str().replace("\n", "");
+        let description = wrap(&description, 77).join("\n  ");
 
         fmt.write_str(&format!("- {}\n", description))?;
 
