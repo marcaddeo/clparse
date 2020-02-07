@@ -25,7 +25,7 @@ $ sudo mv clparse /usr/local/bin/clparse
 
 ### Cargo
 ```
-$ cargo install --git https://github.com/marcaddeo/clparse
+$ cargo install clparse
 ```
 
 ## Usage
