@@ -2,7 +2,12 @@
 name = "clparse"
 version = "0.5.0"
 description = "A command line tool for parsing CHANGELOG.md files that use the Keep A Changelog format."
+keywords = ["changelog", "changelog parser", "keepachangelog", "keep a changelog"]
+categories = ["command-line-utilities", "development-tools", "text-processing"]
+homepage = "https://github.com/marcaddeo/clparse"
+repository = "https://github.com/marcaddeo/clparse"
 authors = ["Marc Addeo <hi@marc.cx>"]
+license = "MIT"
 edition = "2018"
 
 [lib]
