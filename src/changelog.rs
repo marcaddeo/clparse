@@ -26,7 +26,7 @@ pub enum ChangeError {
     InvalidChangeType(String),
 }
 
-#[derive(Debug, Clone, Builder, Getters, Serialize, Deserialize)]
+#[derive(Debug, Clone, Builder, Getters, Serialize, Deserialize, PartialEq)]
 pub struct Release {
     #[builder(setter(strip_option), default)]
     version: Option<Version>,
@@ -38,6 +38,16 @@ pub struct Release {
     changes: Vec<Change>,
     #[builder(default = "false")]
     yanked: bool,
+}
+
+impl Release {
+    pub fn yank(&mut self, yanked: bool) {
+        if !self.yanked && yanked {
+            self.link = None;
+        }
+
+        self.yanked = yanked;
+    }
 }
 
 #[derive(Debug, Clone, Builder, Getters, Serialize, Deserialize)]
@@ -58,6 +68,11 @@ impl Changelog {
             .map(|r| r.changes.clone())
             .flatten()
             .collect()
+    }
+
+    pub fn release_mut(&mut self, release: Version) -> Option<&mut Release> {
+        self.releases.iter_mut()
+            .find(|r| r.version == Some(release.clone()))
     }
 }
 

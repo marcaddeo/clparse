@@ -1,0 +1,2 @@
+---
+- added: Add a public api for getting a mutable release and yanking it
