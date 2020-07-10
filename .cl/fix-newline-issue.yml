@@ -1,0 +1,2 @@
+---
+- fixed: Fix bug that caused wrapped lines to be missing spaces between words at the newline boundary
