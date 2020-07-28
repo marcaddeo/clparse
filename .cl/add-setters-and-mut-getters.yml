@@ -1,0 +1,2 @@
+---
+- added: Add some setters and mut getters for the Release and Changelog structs
