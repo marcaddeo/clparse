@@ -41,6 +41,42 @@ pub struct Release {
 }
 
 impl Release {
+    pub fn version_mut(&mut self) -> &mut Option<Version> {
+        &mut self.version
+    }
+
+    pub fn set_version(&mut self, version: Version) -> &mut Self {
+        self.version = Some(version);
+        self
+    }
+
+    pub fn link_mut(&mut self) -> &mut Option<String> {
+        &mut self.link
+    }
+
+    pub fn set_link(&mut self, link: String) -> &mut Self {
+        self.link = Some(link);
+        self
+    }
+
+    pub fn date_mut(&mut self) -> &mut Option<NaiveDate> {
+        &mut self.date
+    }
+
+    pub fn set_date(&mut self, date: NaiveDate) -> &mut Self {
+        self.date = Some(date);
+        self
+    }
+
+    pub fn changes_mut(&mut self) -> &mut Vec<Change> {
+        &mut self.changes
+    }
+
+    pub fn set_changes(&mut self, changes: Vec<Change>) -> &mut Self {
+        self.changes = changes;
+        self
+    }
+
     pub fn yank(&mut self, yanked: bool) {
         if !self.yanked && yanked {
             self.link = None;
@@ -68,6 +104,11 @@ impl Changelog {
             .map(|r| r.changes.clone())
             .flatten()
             .collect()
+    }
+
+    pub fn unreleased_mut(&mut self) -> Option<&mut Release> {
+        self.releases.iter_mut()
+            .find(|r| r.version == None)
     }
 
     pub fn release_mut(&mut self, release: Version) -> Option<&mut Release> {
