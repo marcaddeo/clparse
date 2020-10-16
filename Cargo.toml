@@ -36,6 +36,6 @@ clap = { version = "2.33.0", features = ["yaml", "suggestions", "color"] }
 serde_yaml = "0.8.9"
 indexmap = "1.2.0"
 anyhow = "1.0.3"
-err-derive = "0.1.6"
+err-derive = "0.2.4"
 derive-getters = "0.1.0"
 textwrap = "0.11.0"
