@@ -37,12 +37,14 @@ pub enum ChangelogParserError {
 
 pub struct ChangelogParser {
     separator: String,
+    wrap: Option<usize>,
 }
 
 impl ChangelogParser {
-    pub fn new(separator: String) -> Self {
+    pub fn new(separator: String, wrap: Option<usize>) -> Self {
         Self {
-            separator
+            separator,
+            wrap,
         }
     }
 
@@ -92,6 +94,7 @@ impl ChangelogParser {
                         ChangelogSection::Changeset(_) | ChangelogSection::ReleaseHeader => {
                             release.changes(changeset.clone());
                             release.separator(self.separator.clone());
+                            release.wrap(self.wrap);
                             releases.push(
                                 release
                                     .build()
@@ -202,6 +205,7 @@ impl ChangelogParser {
 
         release.changes(changeset.clone());
         release.separator(self.separator.clone());
+        release.wrap(self.wrap);
         releases.push(
             release
                 .build()

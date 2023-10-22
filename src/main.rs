@@ -26,6 +26,20 @@ pub fn main() -> Result<()> {
                 .long("separator"),
         )
         .arg(
+            Arg::with_name("no-wrap")
+                .help("Disable wrapping of change entries of a release. By default, change entries are wrapped at 80 characters.")
+                .takes_value(false)
+                .short("n")
+                .long("no-wrap"),
+        )
+        .arg(
+            Arg::with_name("wrap-at")
+                .help("Specify how many characters to wrap change entries at [default: 80]")
+                .takes_value(true)
+                .short("w")
+                .long("wrap-at"),
+        )
+        .arg(
             Arg::with_name("file")
                 .help("The CHANGELOG file to parse. This should be either a Markdown, JSON, or Yaml representation of a changelog. Use '-' to read from stdin.")
                 .value_name("FILE")
@@ -36,7 +50,15 @@ pub fn main() -> Result<()> {
 
     let file = matches.value_of("file").unwrap();
     let separator = matches.value_of("separator").unwrap_or("-");
-    let parser = ChangelogParser::new(separator.into());
+
+    let no_wrap = matches.is_present("no-wrap");
+    let wrap_at = matches.value_of("wrap-at").unwrap_or("80");
+    let wrap = match (no_wrap, wrap_at) {
+        (true, _) => None,
+        (false, wrap_at) => Some(wrap_at.parse::<usize>()?),
+    };
+
+    let parser = ChangelogParser::new(separator.into(), wrap);
     let changelog = if file == "-" {
         let mut buffer = String::new();
         io::stdin().read_to_string(&mut buffer)?;

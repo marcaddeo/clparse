@@ -35,10 +35,12 @@ Marc Addeo <hi@marc.cx>
 A command line tool for parsing CHANGELOG.md files that use the Keep A Changelog format.
 
 USAGE:
-    clparse [OPTIONS] <FILE>
+    clparse [FLAGS] [OPTIONS] <FILE>
 
 FLAGS:
     -h, --help       Prints help information
+    -n, --no-wrap    Disable wrapping of change entries of a release. By default, change entries are wrapped at 80
+                     characters.
     -V, --version    Prints version information
 
 OPTIONS:
@@ -46,6 +48,7 @@ OPTIONS:
                                    json, yaml, yml, markdown, md]
     -s, --separator <separator>    Sets the separator character used between version and date in a release heading
                                    [default: -]
+    -w, --wrap-at <wrap-at>        Specify how many characters to wrap change entries at [default: 80]
 
 ARGS:
     <FILE>    The CHANGELOG file to parse. This should be either a Markdown, JSON, or Yaml representation of a

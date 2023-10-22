@@ -53,6 +53,9 @@ pub struct Release {
     #[serde(skip)]
     #[builder(default = "self.default_separator()")]
     separator: String,
+    #[serde(skip)]
+    #[builder(default = "80.into()")]
+    wrap: Option<usize>,
 }
 
 impl ReleaseBuilder {
@@ -167,8 +170,6 @@ impl fmt::Display for Change {
             Fixed(description) => description,
             Security(description) => description,
         };
-        let description = description.as_str().replace("\n", " ");
-        let description = wrap(&description, 77).join("\n  ");
 
         fmt.write_str(&format!("- {}\n", description))?;
 
@@ -199,6 +200,30 @@ impl fmt::Display for Release {
         }
 
         // Release changes.
+        let mut changes = self.changes.clone();
+
+        // If wrapping is enabled, we regenerate the list of changes and wrap
+        // them.
+        if let Some(wrap_at) = self.wrap {
+            changes = changes.into_iter().map(|change| {
+                let (change_type, mut description) = match change {
+                    Added(description) => ("added", description),
+                    Changed(description) => ("changed", description),
+                    Deprecated(description) => ("deprecated", description),
+                    Removed(description) => ("removed", description),
+                    Fixed(description) => ("fixed", description),
+                    Security(description) => ("security", description),
+                };
+
+                description = description.replace("\n", " ");
+                // The first 3 characters are not included in this change description,
+                // so we need to wrap at 3 less characters than expected.
+                description = wrap(&description, wrap_at - 3).join("\n  ");
+
+                Change::new(change_type, description.to_string()).unwrap()
+            }).collect();
+        }
+
         let mut changesets = indexmap! {
             "Added" => Vec::new(),
             "Changed" => Vec::new(),
@@ -207,7 +232,7 @@ impl fmt::Display for Release {
             "Fixed" => Vec::new(),
             "Security" => Vec::new(),
         };
-        self.changes.iter().for_each(|change| match change {
+        changes.iter().for_each(|change| match change {
             Added(_) => changesets.get_mut("Added").unwrap().push(change),
             Changed(_) => changesets.get_mut("Changed").unwrap().push(change),
             Deprecated(_) => changesets.get_mut("Deprecated").unwrap().push(change),
