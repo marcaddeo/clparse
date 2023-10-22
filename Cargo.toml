@@ -5,6 +5,7 @@ description = "A command line tool for parsing CHANGELOG.md files that use the K
 keywords = ["changelog", "parser", "keepachangelog"]
 categories = ["command-line-utilities", "development-tools", "text-processing"]
 homepage = "https://github.com/marcaddeo/clparse"
+readme = "README.md"
 repository = "https://github.com/marcaddeo/clparse"
 documentation = "https://github.com/marcaddeo/clparse#clparse"
 authors = ["Marc Addeo <hi@marc.cx>"]
