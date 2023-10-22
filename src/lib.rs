@@ -3,7 +3,7 @@ use changelog::{Change, Changelog, ChangelogBuilder, Release, ReleaseBuilder};
 use chrono::NaiveDate;
 use err_derive::Error;
 use pulldown_cmark::{Event, LinkType, Parser, Tag};
-use semver::Version;
+use versions::Version;
 use std::fs::File;
 use std::io::prelude::*;
 use std::path::PathBuf;
@@ -177,11 +177,15 @@ impl ChangelogParser {
                         }
 
                         for string in split {
+                            if string == "Unreleased" {
+                                continue;
+                            }
+
                             if let Ok(date) = NaiveDate::parse_from_str(&string, &date_format) {
                                 release.date(date);
                             }
 
-                            if let Ok(version) = Version::parse(&string) {
+                            if let Some(version) = Version::new(&string) {
                                 release.version(version);
                             }
                         }

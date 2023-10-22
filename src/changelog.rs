@@ -4,7 +4,8 @@ use derive_builder::Builder;
 use derive_getters::Getters;
 use err_derive::Error;
 use indexmap::indexmap;
-use semver::Version;
+use versions::Version;
+use serde::ser::Serializer;
 use serde_derive::{Deserialize, Serialize};
 use std::fmt;
 use textwrap::wrap;
@@ -26,9 +27,20 @@ pub enum ChangeError {
     InvalidChangeType(String),
 }
 
+fn version_serialize<S>(x: &Option<Version>, s: S) -> Result<S::Ok, S::Error>
+where
+    S: Serializer,
+{
+    match x {
+        Some(ref version) => s.serialize_str(&version.to_string()),
+        None => s.serialize_none(),
+    }
+}
+
 #[derive(Debug, Clone, Builder, Getters, Serialize, Deserialize, PartialEq)]
 pub struct Release {
     #[builder(setter(strip_option), default)]
+    #[serde(serialize_with = "version_serialize")]
     version: Option<Version>,
     #[builder(setter(strip_option, into), default)]
     link: Option<String>,

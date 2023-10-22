@@ -25,7 +25,6 @@ name = "clparse"
 path = "src/main.rs"
 
 [dependencies]
-semver = { version = "0.10.0", features = ["serde"] }
 pulldown-cmark = "0.5.3"
 chrono = { version = "0.4.7", features = ["serde"] }
 derive_builder = "0.7.2"
@@ -39,3 +38,4 @@ anyhow = "1.0.3"
 err-derive = "0.2.4"
 derive-getters = "0.1.0"
 textwrap = "0.11.0"
+versions = { version = "5.0.1", features = ["serde"] }
