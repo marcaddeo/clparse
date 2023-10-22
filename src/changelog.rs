@@ -1,8 +1,8 @@
 use anyhow::Result;
-use err_derive::Error;
 use chrono::NaiveDate;
 use derive_builder::Builder;
 use derive_getters::Getters;
+use err_derive::Error;
 use indexmap::indexmap;
 use semver::Version;
 use serde_derive::{Deserialize, Serialize};
@@ -98,7 +98,8 @@ pub struct Changelog {
 
 impl Changelog {
     pub fn unreleased_changes(&self) -> Vec<Change> {
-        self.releases.clone()
+        self.releases
+            .clone()
             .into_iter()
             .filter(|r| r.version.is_none())
             .map(|r| r.changes.clone())
@@ -107,12 +108,12 @@ impl Changelog {
     }
 
     pub fn unreleased_mut(&mut self) -> Option<&mut Release> {
-        self.releases.iter_mut()
-            .find(|r| r.version == None)
+        self.releases.iter_mut().find(|r| r.version == None)
     }
 
     pub fn release_mut(&mut self, release: Version) -> Option<&mut Release> {
-        self.releases.iter_mut()
+        self.releases
+            .iter_mut()
             .find(|r| r.version == Some(release.clone()))
     }
 }

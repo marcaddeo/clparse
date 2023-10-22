@@ -1,7 +1,7 @@
 use anyhow::Result;
-use err_derive::Error;
 use changelog::{Change, Changelog, ChangelogBuilder, Release, ReleaseBuilder};
 use chrono::NaiveDate;
+use err_derive::Error;
 use pulldown_cmark::{Event, LinkType, Parser, Tag};
 use semver::Version;
 use std::fs::File;
@@ -82,7 +82,11 @@ impl ChangelogParser {
                         }
                         ChangelogSection::Changeset(_) | ChangelogSection::ReleaseHeader => {
                             release.changes(changeset.clone());
-                            releases.push(release.build().map_err(ChangelogParserError::ErrorBuildingRelease)?);
+                            releases.push(
+                                release
+                                    .build()
+                                    .map_err(ChangelogParserError::ErrorBuildingRelease)?,
+                            );
 
                             changeset = Vec::new();
                             release = ReleaseBuilder::default();
@@ -183,7 +187,11 @@ impl ChangelogParser {
         }
 
         release.changes(changeset.clone());
-        releases.push(release.build().map_err(ChangelogParserError::ErrorBuildingRelease)?);
+        releases.push(
+            release
+                .build()
+                .map_err(ChangelogParserError::ErrorBuildingRelease)?,
+        );
 
         if !description_links.is_empty() {
             description = format!("{}{}\n", description, description_links);
