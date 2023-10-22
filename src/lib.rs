@@ -35,18 +35,27 @@ pub enum ChangelogParserError {
     ErrorBuildingRelease(String),
 }
 
-pub struct ChangelogParser;
+pub struct ChangelogParser {
+    separator: String,
+}
+
 impl ChangelogParser {
-    pub fn parse(path: PathBuf) -> Result<Changelog> {
-        let mut document = String::new();
-        File::open(path.clone())?.read_to_string(&mut document)?;
-        Self::parse_buffer(document)
+    pub fn new(separator: String) -> Self {
+        Self {
+            separator
+        }
     }
 
-    pub fn parse_buffer(buffer: String) -> Result<Changelog> {
+    pub fn parse(&self, path: PathBuf) -> Result<Changelog> {
+        let mut document = String::new();
+        File::open(path.clone())?.read_to_string(&mut document)?;
+        self.parse_buffer(document)
+    }
+
+    pub fn parse_buffer(&self, buffer: String) -> Result<Changelog> {
         match Self::get_format_from_buffer(buffer.clone()) {
             Ok(format) => match format {
-                ChangelogFormat::Markdown => Self::parse_markdown(buffer),
+                ChangelogFormat::Markdown => self.parse_markdown(buffer),
                 ChangelogFormat::Json => Self::parse_json(buffer),
                 ChangelogFormat::Yaml => Self::parse_yaml(buffer),
             },
@@ -54,7 +63,7 @@ impl ChangelogParser {
         }
     }
 
-    fn parse_markdown(markdown: String) -> Result<Changelog> {
+    fn parse_markdown(&self, markdown: String) -> Result<Changelog> {
         let parser = Parser::new(&markdown);
 
         let mut section = ChangelogSection::None;
@@ -82,6 +91,7 @@ impl ChangelogParser {
                         }
                         ChangelogSection::Changeset(_) | ChangelogSection::ReleaseHeader => {
                             release.changes(changeset.clone());
+                            release.separator(self.separator.clone());
                             releases.push(
                                 release
                                     .build()
@@ -159,15 +169,15 @@ impl ChangelogParser {
                             release.yanked(true);
                         }
 
-                        let mut date_format = "- %Y-%m-%d";
-                        let split: Vec<&str> = text.split(" - ").collect();
+                        let mut date_format = format!("{} %Y-%m-%d", self.separator);
+                        let split: Vec<&str> = text.split(&format!(" {} ", self.separator)).collect();
 
                         if split.iter().count() > 1 {
-                            date_format = "%Y-%m-%d";
+                            date_format = "%Y-%m-%d".into();
                         }
 
                         for string in split {
-                            if let Ok(date) = NaiveDate::parse_from_str(&string, date_format) {
+                            if let Ok(date) = NaiveDate::parse_from_str(&string, &date_format) {
                                 release.date(date);
                             }
 
@@ -187,6 +197,7 @@ impl ChangelogParser {
         }
 
         release.changes(changeset.clone());
+        release.separator(self.separator.clone());
         releases.push(
             release
                 .build()

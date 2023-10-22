@@ -1,0 +1,2 @@
+---
+ - added: "Add support for using an arbitrary separator character between the version and date of a release heading using the `--separator` flag"

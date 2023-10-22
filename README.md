@@ -42,8 +42,10 @@ FLAGS:
     -V, --version    Prints version information
 
 OPTIONS:
-    -f, --format <format>    Sets the output format of the parsed CHANGELOG [default: markdown] [possible values: json,
-                             yaml, yml, markdown, md]
+    -f, --format <format>          Sets the output format of the parsed CHANGELOG [default: markdown] [possible values:
+                                   json, yaml, yml, markdown, md]
+    -s, --separator <separator>    Sets the separator character used between version and date in a release heading
+                                   [default: -]
 
 ARGS:
     <FILE>    The CHANGELOG file to parse. This should be either a Markdown, JSON, or Yaml representation of a

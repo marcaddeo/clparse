@@ -19,6 +19,13 @@ pub fn main() -> Result<()> {
                 .long("format"),
         )
         .arg(
+            Arg::with_name("separator")
+                .help("Sets the separator character used between version and date in a release heading [default: -]")
+                .takes_value(true)
+                .short("s")
+                .long("separator"),
+        )
+        .arg(
             Arg::with_name("file")
                 .help("The CHANGELOG file to parse. This should be either a Markdown, JSON, or Yaml representation of a changelog. Use '-' to read from stdin.")
                 .value_name("FILE")
@@ -28,13 +35,15 @@ pub fn main() -> Result<()> {
         .get_matches();
 
     let file = matches.value_of("file").unwrap();
+    let separator = matches.value_of("separator").unwrap_or("-");
+    let parser = ChangelogParser::new(separator.into());
     let changelog = if file == "-" {
         let mut buffer = String::new();
         io::stdin().read_to_string(&mut buffer)?;
 
-        ChangelogParser::parse_buffer(buffer)?
+        parser.parse_buffer(buffer)?
     } else {
-        ChangelogParser::parse(file.into())?
+        parser.parse(file.into())?
     };
 
     let output = match matches.value_of("format").unwrap_or("markdown") {

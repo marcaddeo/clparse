@@ -38,6 +38,15 @@ pub struct Release {
     changes: Vec<Change>,
     #[builder(default = "false")]
     yanked: bool,
+    #[serde(skip)]
+    #[builder(default = "self.default_separator()")]
+    separator: String,
+}
+
+impl ReleaseBuilder {
+    fn default_separator(&self) -> String {
+        "-".into()
+    }
 }
 
 impl Release {
@@ -165,9 +174,9 @@ impl fmt::Display for Release {
         // Release Version.
         if let (Some(version), Some(date)) = (self.version.as_ref(), self.date) {
             if self.yanked {
-                fmt.write_str(&format!("{} - {} [YANKED]\n", version, date))?;
+                fmt.write_str(&format!("{} {} {} [YANKED]\n", version, self.separator, date))?;
             } else {
-                fmt.write_str(&format!("[{}] - {}\n", version, date))?;
+                fmt.write_str(&format!("[{}] {} {}\n", version, self.separator, date))?;
             }
         } else {
             fmt.write_str("[Unreleased]\n")?;
