@@ -168,10 +168,6 @@ impl ChangelogParser {
                     ChangelogSection::ReleaseHeader => {
                         let text = text.trim();
 
-                        if text == "YANKED" {
-                            release.yanked(true);
-                        }
-
                         let mut date_format = format!("{} %Y-%m-%d", self.separator);
                         let split: Vec<&str> = text.split(&format!(" {} ", self.separator)).collect();
 
@@ -184,8 +180,14 @@ impl ChangelogParser {
                                 continue;
                             }
 
+                            if string == "YANKED" {
+                                release.yanked(true);
+                                continue;
+                            }
+
                             if let Ok(date) = NaiveDate::parse_from_str(&string, &date_format) {
                                 release.date(date);
+                                continue;
                             }
 
                             if let Some(version) = Version::new(&string) {
