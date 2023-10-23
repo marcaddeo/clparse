@@ -156,17 +156,12 @@ impl ChangelogParser {
                             link_accumulator.push_str(&text);
                         }
                     }
-                    ChangelogSection::ReleaseHeader => {
-                        if text != "Unreleased".into() {
-                            accumulator.push_str(&text);
-                        }
-                    }
                     ChangelogSection::ChangesetHeader => {
                         self.parse_release_header(&mut release, &mut accumulator);
 
                         section = ChangelogSection::Changeset(text.to_string())
                     }
-                    ChangelogSection::Changeset(_) => accumulator.push_str(&text),
+                    ChangelogSection::Changeset(_) | ChangelogSection::ReleaseHeader => accumulator.push_str(&text),
                     _ => (),
                 },
                 _ => (),
