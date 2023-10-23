@@ -100,6 +100,7 @@ impl ChangelogParser {
                                     .build()
                                     .map_err(ChangelogParserError::ErrorBuildingRelease)?,
                             );
+                            self.parse_release_header(&mut release, &mut accumulator);
 
                             changeset = Vec::new();
                             release = ReleaseBuilder::default();
@@ -166,36 +167,13 @@ impl ChangelogParser {
                         }
                     }
                     ChangelogSection::ReleaseHeader => {
-                        let text = text.trim();
-
-                        let mut date_format = format!("{} %Y-%m-%d", self.separator);
-                        let split: Vec<&str> = text.split(&format!(" {} ", self.separator)).collect();
-
-                        if split.iter().count() > 1 {
-                            date_format = "%Y-%m-%d".into();
-                        }
-
-                        for string in split {
-                            if string == "Unreleased" {
-                                continue;
-                            }
-
-                            if string == "YANKED" {
-                                release.yanked(true);
-                                continue;
-                            }
-
-                            if let Ok(date) = NaiveDate::parse_from_str(&string, &date_format) {
-                                release.date(date);
-                                continue;
-                            }
-
-                            if let Some(version) = Version::new(&string) {
-                                release.version(version);
-                            }
+                        if text != "Unreleased".into() {
+                            accumulator.push_str(&text);
                         }
                     }
                     ChangelogSection::ChangesetHeader => {
+                        self.parse_release_header(&mut release, &mut accumulator);
+
                         section = ChangelogSection::Changeset(text.to_string())
                     }
                     ChangelogSection::Changeset(_) => accumulator.push_str(&text),
@@ -226,6 +204,26 @@ impl ChangelogParser {
             .map_err(ChangelogParserError::ErrorBuildingRelease)?;
 
         Ok(changelog)
+    }
+
+    fn parse_release_header(&self, release: &mut ReleaseBuilder, accumulator: &mut String) {
+        let delimiter = format!(" {} ", self.separator);
+        if let Some((left, right)) = accumulator.trim().split_once(&delimiter) {
+            if right.contains("YANKED") {
+                release.yanked(true);
+            }
+
+            let right = &right.replace(" [YANKED]", "");
+            if let Ok(date) = NaiveDate::parse_from_str(&right, "%Y-%m-%d") {
+                release.date(date);
+            }
+
+            if let Some(version) = Version::new(&left) {
+                release.version(version);
+            }
+        }
+
+        *accumulator = String::new();
     }
 
     fn parse_json(json: String) -> Result<Changelog> {
