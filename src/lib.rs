@@ -92,18 +92,8 @@ impl ChangelogParser {
                             accumulator = String::new();
                         }
                         ChangelogSection::Changeset(_) | ChangelogSection::ReleaseHeader => {
-                            release.changes(changeset.clone());
-                            release.separator(self.separator.clone());
-                            release.wrap(self.wrap);
-                            releases.push(
-                                release
-                                    .build()
-                                    .map_err(ChangelogParserError::ErrorBuildingRelease)?,
-                            );
                             self.parse_release_header(&mut release, &mut accumulator);
-
-                            changeset = Vec::new();
-                            release = ReleaseBuilder::default();
+                            self.build_release(&mut releases, &mut release, &mut changeset)?;
                         }
                         _ => (),
                     }
@@ -183,14 +173,7 @@ impl ChangelogParser {
             };
         }
 
-        release.changes(changeset.clone());
-        release.separator(self.separator.clone());
-        release.wrap(self.wrap);
-        releases.push(
-            release
-                .build()
-                .map_err(ChangelogParserError::ErrorBuildingRelease)?,
-        );
+        self.build_release(&mut releases, &mut release, &mut changeset)?;
 
         if !description_links.is_empty() {
             description = format!("{}{}\n", description, description_links);
@@ -224,6 +207,22 @@ impl ChangelogParser {
         }
 
         *accumulator = String::new();
+    }
+
+    fn build_release(&self, releases: &mut Vec<Release>, release: &mut ReleaseBuilder, changeset: &mut Vec<Change>) -> Result<()> {
+        release.changes(changeset.clone());
+        release.separator(self.separator.clone());
+        release.wrap(self.wrap);
+        releases.push(
+            release
+                .build()
+                .map_err(ChangelogParserError::ErrorBuildingRelease)?
+        );
+
+        *changeset = Vec::new();
+        *release = ReleaseBuilder::default();
+
+        Ok(())
     }
 
     fn parse_json(json: String) -> Result<Changelog> {
