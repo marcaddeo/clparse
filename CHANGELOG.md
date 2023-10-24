@@ -5,6 +5,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Add support for using an arbitrary separator character between the version
+  and date of a release heading using the `--separator` flag
+- Add support for parsing non-semver versions
+- Add support for disabling wrapping of changelog release entries using the
+  `--no-wrap` flag
+- Add support for wrapping at a custom character count using the `--wrap-at`
+  option
 
 ## [0.8.1] - 2020-10-16
 ### Changed
