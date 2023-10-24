@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.9.0] - 2023-10-24
 ### Added
 - Add support for using an arbitrary separator character between the version
   and date of a release heading using the `--separator` flag
@@ -77,7 +79,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial implementation of `clparse` library and binary
 
-[Unreleased]: https://github.com/marcaddeo/clparse/compare/0.8.1...HEAD
+[Unreleased]: https://github.com/marcaddeo/clparse/compare/0.9.0...HEAD
+[0.9.0]: https://github.com/marcaddeo/clparse/compare/0.8.1...0.9.0
 [0.8.1]: https://github.com/marcaddeo/clparse/compare/0.8.0...0.8.1
 [0.8.0]: https://github.com/marcaddeo/clparse/compare/0.7.0...0.8.0
 [0.7.0]: https://github.com/marcaddeo/clparse/compare/0.6.0...0.7.0
