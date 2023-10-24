@@ -1,4 +1,6 @@
 ---
+name: Compile and release
+
 on:
   release:
     types: [created]
