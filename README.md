@@ -5,6 +5,7 @@ and can also be output into any of those formats once parsed.
 
 ## Installation
 
+<!--
 ### Homebrew
 ```
 $ brew install marcaddeo/clsuite/clparse
@@ -22,6 +23,8 @@ $ curl -LO https://github.com/marcaddeo/clparse/releases/download/0.9.0/clparse-
 $ tar czvf clparse-0.9.0-x86_64-unknown-linux-musl.tar.gz
 $ sudo mv clparse /usr/local/bin/clparse
 ```
+-->
+Currently can only be installed via Cargo, working on fixing this ASAP!
 
 ### Cargo
 ```
