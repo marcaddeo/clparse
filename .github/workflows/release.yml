@@ -3,7 +3,7 @@ name: Compile and release
 
 on:
   release:
-    types: [created]
+    types: [published]
 
 jobs:
   release:
