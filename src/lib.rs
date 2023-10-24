@@ -1,9 +1,9 @@
 use anyhow::Result;
-use err_derive::Error;
 use changelog::{Change, Changelog, ChangelogBuilder, Release, ReleaseBuilder};
 use chrono::NaiveDate;
+use err_derive::Error;
 use pulldown_cmark::{Event, LinkType, Parser, Tag};
-use semver::Version;
+use versions::Version;
 use std::fs::File;
 use std::io::prelude::*;
 use std::path::PathBuf;
@@ -35,18 +35,29 @@ pub enum ChangelogParserError {
     ErrorBuildingRelease(String),
 }
 
-pub struct ChangelogParser;
+pub struct ChangelogParser {
+    separator: String,
+    wrap: Option<usize>,
+}
+
 impl ChangelogParser {
-    pub fn parse(path: PathBuf) -> Result<Changelog> {
-        let mut document = String::new();
-        File::open(path.clone())?.read_to_string(&mut document)?;
-        Self::parse_buffer(document)
+    pub fn new(separator: String, wrap: Option<usize>) -> Self {
+        Self {
+            separator,
+            wrap,
+        }
     }
 
-    pub fn parse_buffer(buffer: String) -> Result<Changelog> {
+    pub fn parse(&self, path: PathBuf) -> Result<Changelog> {
+        let mut document = String::new();
+        File::open(path.clone())?.read_to_string(&mut document)?;
+        self.parse_buffer(document)
+    }
+
+    pub fn parse_buffer(&self, buffer: String) -> Result<Changelog> {
         match Self::get_format_from_buffer(buffer.clone()) {
             Ok(format) => match format {
-                ChangelogFormat::Markdown => Self::parse_markdown(buffer),
+                ChangelogFormat::Markdown => self.parse_markdown(buffer),
                 ChangelogFormat::Json => Self::parse_json(buffer),
                 ChangelogFormat::Yaml => Self::parse_yaml(buffer),
             },
@@ -54,7 +65,7 @@ impl ChangelogParser {
         }
     }
 
-    fn parse_markdown(markdown: String) -> Result<Changelog> {
+    fn parse_markdown(&self, markdown: String) -> Result<Changelog> {
         let parser = Parser::new(&markdown);
 
         let mut section = ChangelogSection::None;
@@ -81,11 +92,8 @@ impl ChangelogParser {
                             accumulator = String::new();
                         }
                         ChangelogSection::Changeset(_) | ChangelogSection::ReleaseHeader => {
-                            release.changes(changeset.clone());
-                            releases.push(release.build().map_err(ChangelogParserError::ErrorBuildingRelease)?);
-
-                            changeset = Vec::new();
-                            release = ReleaseBuilder::default();
+                            self.parse_release_header(&mut release, &mut accumulator);
+                            self.build_release(&mut releases, &mut release, &mut changeset)?;
                         }
                         _ => (),
                     }
@@ -148,42 +156,19 @@ impl ChangelogParser {
                             link_accumulator.push_str(&text);
                         }
                     }
-                    ChangelogSection::ReleaseHeader => {
-                        let text = text.trim();
-
-                        if text == "YANKED" {
-                            release.yanked(true);
-                        }
-
-                        let mut date_format = "- %Y-%m-%d";
-                        let split: Vec<&str> = text.split(" - ").collect();
-
-                        if split.iter().count() > 1 {
-                            date_format = "%Y-%m-%d";
-                        }
-
-                        for string in split {
-                            if let Ok(date) = NaiveDate::parse_from_str(&string, date_format) {
-                                release.date(date);
-                            }
-
-                            if let Ok(version) = Version::parse(&string) {
-                                release.version(version);
-                            }
-                        }
-                    }
                     ChangelogSection::ChangesetHeader => {
+                        self.parse_release_header(&mut release, &mut accumulator);
+
                         section = ChangelogSection::Changeset(text.to_string())
                     }
-                    ChangelogSection::Changeset(_) => accumulator.push_str(&text),
+                    ChangelogSection::Changeset(_) | ChangelogSection::ReleaseHeader => accumulator.push_str(&text),
                     _ => (),
                 },
                 _ => (),
             };
         }
 
-        release.changes(changeset.clone());
-        releases.push(release.build().map_err(ChangelogParserError::ErrorBuildingRelease)?);
+        self.build_release(&mut releases, &mut release, &mut changeset)?;
 
         if !description_links.is_empty() {
             description = format!("{}{}\n", description, description_links);
@@ -197,6 +182,42 @@ impl ChangelogParser {
             .map_err(ChangelogParserError::ErrorBuildingRelease)?;
 
         Ok(changelog)
+    }
+
+    fn parse_release_header(&self, release: &mut ReleaseBuilder, accumulator: &mut String) {
+        let delimiter = format!(" {} ", self.separator);
+        if let Some((left, right)) = accumulator.trim().split_once(&delimiter) {
+            if right.contains("YANKED") {
+                release.yanked(true);
+            }
+
+            let right = &right.replace(" [YANKED]", "");
+            if let Ok(date) = NaiveDate::parse_from_str(&right, "%Y-%m-%d") {
+                release.date(date);
+            }
+
+            if let Some(version) = Version::new(&left) {
+                release.version(version);
+            }
+        }
+
+        *accumulator = String::new();
+    }
+
+    fn build_release(&self, releases: &mut Vec<Release>, release: &mut ReleaseBuilder, changeset: &mut Vec<Change>) -> Result<()> {
+        release.changes(changeset.clone());
+        release.separator(self.separator.clone());
+        release.wrap(self.wrap);
+        releases.push(
+            release
+                .build()
+                .map_err(ChangelogParserError::ErrorBuildingRelease)?
+        );
+
+        *changeset = Vec::new();
+        *release = ReleaseBuilder::default();
+
+        Ok(())
     }
 
     fn parse_json(json: String) -> Result<Changelog> {

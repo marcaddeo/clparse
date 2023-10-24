@@ -1,0 +1,5 @@
+---
+ - added: "Add support for using an arbitrary separator character between the version and date of a release heading using the `--separator` flag"
+ - added: Add support for parsing non-semver versions
+ - added: "Add support for disabling wrapping of changelog release entries using the `--no-wrap` flag"
+ - added: "Add support for wrapping at a custom character count using the `--wrap-at` option"

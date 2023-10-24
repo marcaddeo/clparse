@@ -1,10 +1,11 @@
 use anyhow::Result;
-use err_derive::Error;
 use chrono::NaiveDate;
 use derive_builder::Builder;
 use derive_getters::Getters;
+use err_derive::Error;
 use indexmap::indexmap;
-use semver::Version;
+use versions::Version;
+use serde::ser::Serializer;
 use serde_derive::{Deserialize, Serialize};
 use std::fmt;
 use textwrap::wrap;
@@ -26,9 +27,20 @@ pub enum ChangeError {
     InvalidChangeType(String),
 }
 
+fn version_serialize<S>(x: &Option<Version>, s: S) -> Result<S::Ok, S::Error>
+where
+    S: Serializer,
+{
+    match x {
+        Some(ref version) => s.serialize_str(&version.to_string()),
+        None => s.serialize_none(),
+    }
+}
+
 #[derive(Debug, Clone, Builder, Getters, Serialize, Deserialize, PartialEq)]
 pub struct Release {
     #[builder(setter(strip_option), default)]
+    #[serde(serialize_with = "version_serialize")]
     version: Option<Version>,
     #[builder(setter(strip_option, into), default)]
     link: Option<String>,
@@ -38,6 +50,18 @@ pub struct Release {
     changes: Vec<Change>,
     #[builder(default = "false")]
     yanked: bool,
+    #[serde(skip)]
+    #[builder(default = "self.default_separator()")]
+    separator: String,
+    #[serde(skip)]
+    #[builder(default = "80.into()")]
+    wrap: Option<usize>,
+}
+
+impl ReleaseBuilder {
+    fn default_separator(&self) -> String {
+        "-".into()
+    }
 }
 
 impl Release {
@@ -98,7 +122,8 @@ pub struct Changelog {
 
 impl Changelog {
     pub fn unreleased_changes(&self) -> Vec<Change> {
-        self.releases.clone()
+        self.releases
+            .clone()
             .into_iter()
             .filter(|r| r.version.is_none())
             .map(|r| r.changes.clone())
@@ -107,12 +132,12 @@ impl Changelog {
     }
 
     pub fn unreleased_mut(&mut self) -> Option<&mut Release> {
-        self.releases.iter_mut()
-            .find(|r| r.version == None)
+        self.releases.iter_mut().find(|r| r.version == None)
     }
 
     pub fn release_mut(&mut self, release: Version) -> Option<&mut Release> {
-        self.releases.iter_mut()
+        self.releases
+            .iter_mut()
             .find(|r| r.version == Some(release.clone()))
     }
 }
@@ -145,8 +170,6 @@ impl fmt::Display for Change {
             Fixed(description) => description,
             Security(description) => description,
         };
-        let description = description.as_str().replace("\n", " ");
-        let description = wrap(&description, 77).join("\n  ");
 
         fmt.write_str(&format!("- {}\n", description))?;
 
@@ -164,9 +187,9 @@ impl fmt::Display for Release {
         // Release Version.
         if let (Some(version), Some(date)) = (self.version.as_ref(), self.date) {
             if self.yanked {
-                fmt.write_str(&format!("{} - {} [YANKED]\n", version, date))?;
+                fmt.write_str(&format!("{} {} {} [YANKED]\n", version, self.separator, date))?;
             } else {
-                fmt.write_str(&format!("[{}] - {}\n", version, date))?;
+                fmt.write_str(&format!("[{}] {} {}\n", version, self.separator, date))?;
             }
         } else {
             fmt.write_str("[Unreleased]\n")?;
@@ -177,6 +200,30 @@ impl fmt::Display for Release {
         }
 
         // Release changes.
+        let mut changes = self.changes.clone();
+
+        // If wrapping is enabled, we regenerate the list of changes and wrap
+        // them.
+        if let Some(wrap_at) = self.wrap {
+            changes = changes.into_iter().map(|change| {
+                let (change_type, mut description) = match change {
+                    Added(description) => ("added", description),
+                    Changed(description) => ("changed", description),
+                    Deprecated(description) => ("deprecated", description),
+                    Removed(description) => ("removed", description),
+                    Fixed(description) => ("fixed", description),
+                    Security(description) => ("security", description),
+                };
+
+                description = description.replace("\n", " ");
+                // The first 3 characters are not included in this change description,
+                // so we need to wrap at 3 less characters than expected.
+                description = wrap(&description, wrap_at - 3).join("\n  ");
+
+                Change::new(change_type, description.to_string()).unwrap()
+            }).collect();
+        }
+
         let mut changesets = indexmap! {
             "Added" => Vec::new(),
             "Changed" => Vec::new(),
@@ -185,7 +232,7 @@ impl fmt::Display for Release {
             "Fixed" => Vec::new(),
             "Security" => Vec::new(),
         };
-        self.changes.iter().for_each(|change| match change {
+        changes.iter().for_each(|change| match change {
             Added(_) => changesets.get_mut("Added").unwrap().push(change),
             Changed(_) => changesets.get_mut("Changed").unwrap().push(change),
             Deprecated(_) => changesets.get_mut("Deprecated").unwrap().push(change),
