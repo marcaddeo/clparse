@@ -5,26 +5,17 @@ and can also be output into any of those formats once parsed.
 
 ## Installation
 
-<!--
-### Homebrew
+### Homebrew (macOS)
 ```
 $ brew install marcaddeo/clsuite/clparse
 ```
 
-### Debian
-```
-$ curl -LO https://github.com/marcaddeo/clparse/releases/download/0.9.0/clparse_0.9.0_amd64.deb
-$ sudo dpkg -i clparse_0.9.0_amd64.deb
-```
-
 ### Linux
 ```
-$ curl -LO https://github.com/marcaddeo/clparse/releases/download/0.9.0/clparse-0.9.0-x86_64-unknown-linux-musl.tar.gz
-$ tar czvf clparse-0.9.0-x86_64-unknown-linux-musl.tar.gz
+$ curl -LO https://github.com/marcaddeo/clparse/releases/download/0.9.1/clparse-0.9.1-x86_64-unknown-linux-musl.tar.gz
+$ tar czvf clparse-0.9.1-x86_64-unknown-linux-musl.tar.gz
 $ sudo mv clparse /usr/local/bin/clparse
 ```
--->
-Currently can only be installed via Cargo, working on fixing this ASAP!
 
 ### Cargo
 ```
@@ -33,7 +24,7 @@ $ cargo install clparse
 
 ## Usage
 ```
-clparse 0.9.0
+clparse 0.9.1
 Marc Addeo <hi@marc.cx>
 A command line tool for parsing CHANGELOG.md files that use the Keep A Changelog format.
 
