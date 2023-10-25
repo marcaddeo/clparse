@@ -1,4 +1,3 @@
 /target
 /artifacts
 **/*.rs.bk
-Cargo.lock

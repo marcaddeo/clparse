@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   build:
-    name: Build and Release ${{ matrix.target }}
+    name: Build and Release ${{ matrix.platform.target }}
     runs-on: ${{ matrix.platform.os }}
     strategy:
       fail-fast: false
