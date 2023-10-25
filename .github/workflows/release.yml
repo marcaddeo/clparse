@@ -44,11 +44,11 @@ jobs:
           cwd: target/${{ matrix.platform.target }}/release
           files: |
             clparse
-          outPath: clparse-${{ github.ref_name }}-${{ matrix.platform.target }}.tar.gz
+          outPath: target/${{ matrix.platform.target }}/release/clparse-${{ github.ref_name }}-${{ matrix.platform.target }}.tar.gz
 
       - name: Release binary and SHA-256 checksum to GitHub
         uses: softprops/action-gh-release@v1
         with:
           files: |
             target/${{ matrix.platform.target }}/release/clparse-${{ github.ref_name }}-${{ matrix.platform.target }}.tar.gz
-            target/${{ matrix.platform.target }}/release/${{ matrix.platform.bin }}.sha256
+            target/${{ matrix.platform.target }}/release/clparse.sha256
