@@ -109,7 +109,7 @@ dependencies = [
 
 [[package]]
 name = "clparse"
-version = "0.9.0"
+version = "0.9.1"
 dependencies = [
  "anyhow",
  "chrono",
