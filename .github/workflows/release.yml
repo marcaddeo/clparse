@@ -40,7 +40,7 @@ jobs:
       - name: Create release archive
         uses: a7ul/tar-action@v1.1.0
         with:
-          command: czvf
+          command: c
           cwd: target/${{ matrix.platform.target }}/release
           files: |
             clparse
