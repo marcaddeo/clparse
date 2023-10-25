@@ -1,5 +1,5 @@
 ---
-name: Compile and release
+name: Build and Release
 
 on:
   release:
@@ -9,24 +9,46 @@ permissions:
   contents: write
 
 jobs:
-  release:
-    name: Release ${{ matrix.target }}
-    runs-on: ubuntu-latest
+  build:
+    name: Build and Release ${{ matrix.target }}
+    runs-on: ${{ matrix.platform.os }}
     strategy:
       fail-fast: false
       matrix:
-        include:
+        platform:
           - target: x86_64-unknown-linux-musl
-            archive: tar.gz
+            os: ubuntu-20.04
           - target: x86_64-apple-darwin
-            archive: tar.gz
+            os: macOS-latest
+          - target: aarch64-apple-darwin
+            os: macOS-latest
     steps:
-      - uses: actions/checkout@master
-      - name: Compile and release
-        uses: rust-build/rust-build.action@v1.4.4
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/checkout@v3
+
+      - name: Build binary
+        uses: houseabsolute/actions-rust-cross@v0
         with:
-          RUSTTARGET: ${{ matrix.target }}
-          EXTRA_FILES: "README.md"
-          ARCHIVE_TYPES: ${{ matrix.archive }}
+          command: build
+          target: ${{ matrix.platform.target }}
+          toolchain: stable
+          args: "--locked --release"
+          strip: true
+
+      - name: Generate SHA-256
+        run: shasum -a 256 target/${{ matrix.platform.target }}/release/clparse | cut -d ' ' -f 1 > target/${{ matrix.platform.target }}/release/clparse.sha256
+
+      - name: Create release archive
+        uses: a7ul/tar-action@v1.1.0
+        with:
+          command: czvf
+          cwd: target/${{ matrix.platform.target }}/release
+          files: |
+            clparse
+          outPath: clparse-${{ github.ref }}-${{ matrix.platform.target }}.tar.gz
+
+      - name: Release binary and SHA-256 checksum to GitHub
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            target/${{ matrix.platform.target }}/release/clparse-${{ github.ref }}-${{ matrix.platform.target }}.tar.gz
+            target/${{ matrix.platform.target }}/release/${{ matrix.platform.bin }}.sha256
