@@ -35,7 +35,7 @@ jobs:
           strip: true
 
       - name: Generate SHA-256
-        run: shasum -a 256 target/${{ matrix.platform.target }}/release/clparse | cut -d ' ' -f 1 > target/${{ matrix.platform.target }}/release/clparse.sha256
+        run: shasum -a 256 target/${{ matrix.platform.target }}/release/clparse | cut -d ' ' -f 1 > target/${{ matrix.platform.target }}/release/clparse-${{ github.ref_name }}-${{ matrix.platform.target }}.sha256
 
       - name: Create release archive
         uses: a7ul/tar-action@v1.1.0
@@ -51,4 +51,4 @@ jobs:
         with:
           files: |
             target/${{ matrix.platform.target }}/release/clparse-${{ github.ref_name }}-${{ matrix.platform.target }}.tar.gz
-            target/${{ matrix.platform.target }}/release/clparse.sha256
+            target/${{ matrix.platform.target }}/release/clparse-${{ github.ref_name }}-${{ matrix.platform.target }}.sha256
