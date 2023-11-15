@@ -1,4 +1,5 @@
 # `clparse`
+
 `clparse` is a command line tool for parsing CHANGELOG files that use the Keep
 A Changelog format. The CHANGELOG file can be Markdown, JSON, or YAML format
 and can also be output into any of those formats once parsed.
@@ -6,23 +7,27 @@ and can also be output into any of those formats once parsed.
 ## Installation
 
 ### Homebrew (macOS)
+
 ```
 $ brew install marcaddeo/clsuite/clparse
 ```
 
 ### Linux
+
 ```
 $ curl -LO https://github.com/marcaddeo/clparse/releases/download/0.9.1/clparse-0.9.1-x86_64-unknown-linux-musl.tar.gz
-$ tar czvf clparse-0.9.1-x86_64-unknown-linux-musl.tar.gz
+$ tar xzvf clparse-0.9.1-x86_64-unknown-linux-musl.tar.gz
 $ sudo mv clparse /usr/local/bin/clparse
 ```
 
 ### Cargo
+
 ```
 $ cargo install clparse
 ```
 
 ## Usage
+
 ```
 clparse 0.9.1
 Marc Addeo <hi@marc.cx>
@@ -50,6 +55,7 @@ ARGS:
 ```
 
 ### Examples
+
 By default, `clparse` will parse the input file, and output the changelog in
 markdown format.
 
