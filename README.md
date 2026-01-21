@@ -15,8 +15,8 @@ $ brew install marcaddeo/clsuite/clparse
 ### Linux
 
 ```
-$ curl -LO https://github.com/marcaddeo/clparse/releases/download/0.9.1/clparse-0.9.1-x86_64-unknown-linux-musl.tar.gz
-$ tar xzvf clparse-0.9.1-x86_64-unknown-linux-musl.tar.gz
+$ curl -LO https://github.com/marcaddeo/clparse/releases/download/0.9.2/clparse-0.9.2-x86_64-unknown-linux-musl.tar.gz
+$ tar xzvf clparse-0.9.2-x86_64-unknown-linux-musl.tar.gz
 $ sudo mv clparse /usr/local/bin/clparse
 ```
 
@@ -29,7 +29,7 @@ $ cargo install clparse
 ## Usage
 
 ```
-clparse 0.9.1
+clparse 0.9.2
 Marc Addeo <hi@marc.cx>
 A command line tool for parsing CHANGELOG.md files that use the Keep A Changelog format.
 
