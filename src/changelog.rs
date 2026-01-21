@@ -61,18 +61,16 @@ pub struct Release {
     changes: Vec<Change>,
     #[builder(default = "false")]
     yanked: bool,
-    #[serde(skip)]
-    #[builder(default = "self.default_separator()")]
+    #[serde(skip, default = "default_separator")]
+    #[builder(default = "default_separator()")]
     separator: String,
     #[serde(skip)]
     #[builder(default = "80.into()")]
     wrap: Option<usize>,
 }
 
-impl ReleaseBuilder {
-    fn default_separator(&self) -> String {
-        "-".into()
-    }
+fn default_separator() -> String {
+    "-".into()
 }
 
 impl Release {
