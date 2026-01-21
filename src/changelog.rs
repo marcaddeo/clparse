@@ -5,7 +5,7 @@ use derive_getters::Getters;
 use err_derive::Error;
 use indexmap::indexmap;
 use versions::Version;
-use serde::ser::Serializer;
+use serde::{ser::Serializer, Deserialize as _};
 use serde_derive::{Deserialize, Serialize};
 use std::fmt;
 use textwrap::wrap;
@@ -37,10 +37,21 @@ where
     }
 }
 
+fn version_deserialize<'de, D>(deserializer: D) -> Result<Option<Version>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let s: Option<String> = Option::deserialize(deserializer)?;
+    Ok(s.and_then(|s| Version::new(&s)))
+}
+
 #[derive(Debug, Clone, Builder, Getters, Serialize, Deserialize, PartialEq)]
 pub struct Release {
     #[builder(setter(strip_option), default)]
-    #[serde(serialize_with = "version_serialize")]
+    #[serde(
+        serialize_with = "version_serialize",
+        deserialize_with = "version_deserialize"
+    )]
     version: Option<Version>,
     #[builder(setter(strip_option, into), default)]
     link: Option<String>,

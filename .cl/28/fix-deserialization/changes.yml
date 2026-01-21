@@ -1,0 +1,2 @@
+---
+- fixed: "Fix deserialization issue with Release versions (#28)"
