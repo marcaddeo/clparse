@@ -1,3 +1,0 @@
----
-- fixed: "Fix deserialization issue with Release versions (#28)"
-- fixed: Fix JSON parsing not setting a default release separator
